@@ -1,0 +1,13 @@
+{% if post.content == null %}
+  {% assign words = page.content | strip_html | number_of_words %}
+  {% if page.content contains 'http' and words > 1 %}
+    {% assign time = words | divided_by: 180 %}
+  {% else %}
+    {% assign time = words | divided_by: 180 | plus: 1 %}
+  {% endif %}
+{% else %}
+  {% assign words = post.content | strip_html | number_of_words %}
+  {% assign time = words | divided_by: 180 | plus: 1 %}
+{% endif %}
+
+{{ time }} min read
