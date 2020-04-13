@@ -24,7 +24,10 @@
         <a href="{{ post.url | relative_url }}" rel="permalink">{{ title }}</a>
       {% endif %}
     </h2>
-    <sub><sup>{{ post.date | date: '%b %d' }} &nbsp; · &nbsp; {% include read-time.html %}</sup></sub>
-    <hr>
+    <div id="read-time" style="float:left; font-style:italic; font-size:15px;">
+      {{ post.date | date: '%b %d, %Y' }} &nbsp; · &nbsp; {% include read-time.html %}
+    </div>
+    <br/>
+    <hr/>
   </article>
 </div>

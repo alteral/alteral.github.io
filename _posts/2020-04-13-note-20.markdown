@@ -1,0 +1,130 @@
+---
+title: "Debugging third party iOS apps with lldb"
+date: 2020-04-13
+tags:
+  - iOS
+  - lldb
+  - debug
+  - jailbreak
+  - pentesting
+  - reverse engineering
+preview: "/assets/images/note_20.png"
+excerpt: "Description"
+related: true
+toc: true
+toc_label: Contents
+---
+
+{% include magic-under-title.html %}
+
+## Requirements
+- [*macOS*](https://www.apple.com/macos)
+- [*Xcode*](https://www.ics.uci.edu/~pattis/common/handouts/macmingweclipse/allexperimental/macxcodecommandlinetools.html)
+- [*usbmuxd*](http://macappstore.org/usbmuxd)
+- Jailbroken *iDevice* connected via *USB* (e.g.: [checkra1n](https://checkra.in))
+
+
+## Installation
+### Extracting *debugserver* (via *hdiutil*)
+```bash
+$ cd /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/DeviceSupport/<iOS version>
+$ hdiutil attach DeveloperDiskImage.dmg
+$ cp /Volumes/DeveloperDiskImage/usr/bin/debugserver ~/Desktop
+```
+
+### Signing *debugserver* (via *codesign*)
+```bash
+$ touch entitlements.plist # fill the file using content bellow
+$ codesign -s - --entitlements entitlements.plist -f debugserver
+```
+
+*entitlements.plist:*
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/ PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>com.apple.springboard.debugapplications</key> <true/>
+  <key>run-unsigned-code</key> <true/>
+  <key>get-task-allow</key> <true/>
+  <key>task_for_pid-allow</key> <true/>
+</dict>
+</plist>
+```
+
+### Connecting to *iDevice* (via [*iproxy*](https://iphonedevwiki.net/index.php/SSH_Over_USB))
+```bash
+$ iproxy 6666 6666 & iproxy 2222 44 & sleep 3 && ssh -p 2222 root@localhost
+```
+
+### Copying *debugserver* to *iDevice* (via *scp*)
+```bash
+$ scp -P 2222 debugserver root@localhost:/usr/bin/
+```
+
+### Running *debugserver* on *iDevice*
+```bash
+$ debugserver localhost:6666 -a "<app's CFBundleDisplayName>"
+```
+
+App's *CFBundleDisplayName* can be obtained in many ways, e.g.:
+- *Info.plist*
+- *ideviceinstaller*
+- *frida-ps*
+
+### Running *lldb* on *macOS*
+```bash
+$ lldb
+$ process connect connect://localhost:6666
+```
+
+## Here we go
+Now debug process is ready to go and possibly you would like to figure out more about each *lldb* command --- to do so just jump to official *lldb* [command map](https://lldb.llvm.org/use/map.html) or their [tutorial](https://lldb.llvm.org/use/tutorial.html).
+Anyway I will share couple of *lldb* commands I think are most helpful and frequently used:
+
+### Common
+
+| Command | Description |
+| - | - |
+| help | Explore all available commands |
+| po UIApplication.shared.delegate | Print object |
+
+### Breakpoints
+
+| Command | Description |
+| - | - |
+| b | Set breakpoint |
+| br dis 3 | Disable third breakpoint |
+| br en 3 | Enable third breakpoint |
+| br l | Show list of the existed breakpoints  |
+| br del 3 | Remove third breakpoint |
+| br del | Remove all breakpoints |
+| br set -n viewDidLoad | Set breakpoint on the each *viedDidLoad* method |
+| br s -S count | Set breakpoint on the each method with "*count*" argument |
+| b Testme.swift:33 | Set breakpoint on the line *#33* in the *Testme.swift* file |
+
+### Remote сontrol
+
+| Command | Description |
+| - | - |
+| c | Resume execution |
+| n | Step over |
+| s | Step in |
+
+### Variables
+
+| Command | Description |
+| - | - |
+| e sum | Evaluate expression |
+| e sum = 42 | Set expression |
+
+### Thread state
+
+| Command | Description |
+| - | - |
+| process status | Show process status |
+| bt | Show the stack backtrace for the current thread |
+| bt all | Show the stack backtraces for all threads |
+| frame info | Show information about current frame |
+| frame variable | Show all variables for current frame |
