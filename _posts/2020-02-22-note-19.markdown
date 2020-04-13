@@ -1,0 +1,84 @@
+---
+title: "Waiting in Espresso ☕️"
+date: 2020-02-22
+tags:
+  - Android
+  - Espresso
+  - Automation testing
+preview: "/assets/images/note_19.png"
+excerpt: null
+related: true
+toc: true
+toc_label: Contents
+---
+
+{% include magic-under-title.html %}
+
+# - What is «Waiting»?
+
+Lifeguard from flaky tests.
+
+# - What variety do we have?
+
+Hmm, let me think… 🤔
+
+## We knew about *[Idling Resources](https://developer.android.com/training/testing/espresso/idling-resource)*.
+
+*Pros:*
+- It’s the most honest, fastest, and technically perfect way to wait;
+- It doesn’t eat up the memory.
+
+*Cons:*
+- Sometimes it’s not a bit easier than writing production code;
+- Sometimes we’ll have to touch production code;
+- Most cases will probably require the own *Idling Resources*.
+
+## We heard about *[sleeps](https://docs.oracle.com/javase/7/docs/api/java/lang/Thread.html#sleep(long))*.
+
+*Pros:*
+- Kill me then.
+
+*Cons:*
+- We’ll probably wait longer than we need;
+- We’ll perhaps wait less than we need.
+
+## We were guessing about the hacky way of injecting *[UiAutomator](https://developer.android.com/training/testing/ui-testing/uiautomator-testing)*.
+
+*Pros:*
+- That’s something close to us since the time of *[Selenium](https://en.wikipedia.org/wiki/Selenium_(software))*.
+
+*Cons:*
+- We’ll have to set an excess addiction;
+- We’ll be limited by *minSdkVersion = 18*;
+- We’ll have to play with weird *[UiObjects](https://developer.android.com/reference/androidx/test/uiautomator/UiObject2)*.
+
+---
+
+# - Go on, what about something else?
+
+Okay… 😏
+
+## Let’s try one hacky way using *Espresso*.
+
+At first we have to extend ViewInteration class by adding new methods:
+- *isDisplayed(): Boolean*
+- *doesNotExist(): Boolean*
+- *waitForAppear(millis: Long): ViewInteraction*
+- *waitForDisappear(millis: Long): ViewInteraction*
+
+Then we can try to use it in the tests:
+
+*Pros:*
+- Nothing is easier than use it for all the cases;
+- We’re able to control the waiting timeout for each case.
+
+*Cons:*
+- *Logcat* will be littered;
+- After all, it a bit eats up the memory (comparing with *Idling Resources*).
+
+# - Conclusion?
+
+Yeah, waits are the delicate matter:
+- Follow the deadlines, needs, requirements and sanity;
+- Do whatever you want (using Espresso, of course 🧐);
+- Enjoy! 😉

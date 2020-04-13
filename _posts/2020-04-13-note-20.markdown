@@ -9,7 +9,7 @@ tags:
   - pentesting
   - reverse engineering
 preview: "/assets/images/note_20.png"
-excerpt: "Description"
+excerpt: null
 related: true
 toc: true
 toc_label: Contents
