@@ -25,7 +25,9 @@
       {% endif %}
     </h2>
     <div id="read-time" style="float:left; font-style:italic; font-size:15px;">
-      {{ post.date | date: '%b %d, %Y' }} &nbsp; · &nbsp; {% include read-time.html %}
+      {% if post.date != null %}
+        {{ post.date | date: '%b %d, %Y' }} &nbsp; · &nbsp; {% include read-time.html %}
+      {% endif %}
     </div>
   </article>
 </div>

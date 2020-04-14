@@ -1,0 +1,40 @@
+---
+title: "Configure secure web proxy on macOS via cli"
+date: 2019-06-25
+tags:
+  - macOS
+  - proxy
+preview: "/assets/images/note_17.png"
+excerpt: null
+related: true
+toc: true
+toc_label: Contents
+---
+
+{% include magic-under-title.html %}
+
+## Set secure web proxy on *Wi-Fi*
+
+```bash
+$ networksetup -setsecurewebproxy Wi-Fi "127.0.0.1" "1234"
+```
+
+## Set secure web proxy on *Ethernet*
+
+```bash
+$ networksetup -setsecurewebproxy Ethernet "127.0.0.1" "1234"
+```
+
+## Turn secure web proxy on
+
+```bash
+$ networksetup -setsecurewebproxystate Ethernet 1
+```
+
+## Turn secure web proxy off
+
+```bash
+$ networksetup -setsecurewebproxystate Ethernet 0
+```
+
+To get more interesting things about network automation read <a href="/note-6/" rel="permalink">this note</a>.
