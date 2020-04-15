@@ -1,5 +1,5 @@
 ---
-title: "Waiting in Espresso ☕️"
+title: "Waiting in Espresso tests"
 date: 2020-02-22
 tags:
   - Android
@@ -66,7 +66,61 @@ At first we have to extend ViewInteration class by adding new methods:
 - *waitForAppear(millis: Long): ViewInteraction*
 - *waitForDisappear(millis: Long): ViewInteraction*
 
+```kotlin
+fun ViewInteraction.isDisplayed(): Boolean {
+    try {
+        this.check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+    } catch (ignored: NoMatchingViewException) {
+        return false
+    }
+    return true
+}
+
+fun ViewInteraction.doesNotExist(): Boolean {
+    try {
+        this.check(ViewAssertions.doesNotExist())
+    } catch (ignored: AssertionError) {
+        return false
+    }
+    return true
+}
+
+fun ViewInteraction.waitForAppear(millis: Long = 5000): ViewInteraction {
+    val timeout = System.currentTimeMillis() + millis
+    while (System.currentTimeMillis() < timeout) {
+        if (this.isDisplayed()) { break }
+    }
+    return this
+}
+
+fun ViewInteraction.waitForDisappear(millis: Long = 5000): ViewInteraction {
+    val timeout = System.currentTimeMillis() + millis
+    while (System.currentTimeMillis() < timeout) {
+        if (this.doesNotExist()) { break }
+    }
+    return this
+}
+```
+
 Then we can try to use it in the tests:
+
+```kotlin
+@Test
+fun whenViewWillAppear() {
+    val viewMatcher = ViewMatchers.withId(R.id.sample_view_id)
+    Espresso.onView(viewMatcher)
+        .waitForAppear()
+        .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+}
+
+@Test
+fun whenViewWillDisappear() {
+    val viewMatcher = ViewMatchers.withId(R.id.sample_view_id)
+    Espresso.onView(viewMatcher)
+        .waitForDisappear()
+        .check(ViewAssertions.doesNotExist())
+}
+```
 
 *Pros:*
 - Nothing is easier than use it for all the cases;

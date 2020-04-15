@@ -1,0 +1,296 @@
+---
+title: "Counting views in Espresso or preventing AmbiguousViewMatcherException"
+date: 2020-01-26
+tags:
+  - Android
+  - Espresso
+  - Automation testing
+preview: "/assets/images/note_18.png"
+excerpt: null
+related: true
+toc: true
+toc_label: Contents
+---
+
+{% include magic-under-title.html %}
+
+While doing pretty and flexible things with *Espresso*, have you ever faced with [*AmbiguousViewMatcherException*](https://developer.android.com/reference/android/support/test/espresso/AmbiguousViewMatcherException)? If so, go on reading, if no, you are lucky man, just keep the article *(:*
+
+When does this exception appear? Imagine, you have a *RecyclerView* with a lot of elements and some of them have the same *resource-id* as the neighbours have. Do you wanna count the specific element? Do you wanna tap on the first/last specific element? Do you wanna grep the elements by positions? You are more than welcome to stumble on the *AmbiguousViewMatcherException*!
+
+Let’s try to play around it. I’ll show my vision, how to cover this exception and get a profit. Here we go!
+
+## The first way
+
+is to create the object, that will handle the exception and grep a hierarchy of the views. It will give us an opportunity to get:
+- the first matching view;
+- the last matching view;
+- matching view at position;
+- the count of matching views.
+
+```kotlin
+object ViewCounter {
+    fun first(matcher: Matcher<View>): Matcher<View?>? {
+        return object : BaseMatcher<View>() {
+            var isFirst = true
+            override fun matches(item: Any): Boolean {
+                if (isFirst && matcher.matches(item)) {
+                    isFirst = false
+                    return true
+                }
+                return false
+            }
+
+            override fun describeTo(description: Description) {
+                description.appendText("should return first matching item")
+            }
+        }
+    }
+
+    fun last(matcher: Matcher<View>): Matcher<View?>? {
+        return getElementFromMatchAtPosition(matcher, getCount(matcher) - 1)
+    }
+
+    fun getElementFromMatchAtPosition(matcher: Matcher<View>, position: Int): Matcher<View?>? {
+        return object : BaseMatcher<View?>() {
+            var counter = 0
+
+            override fun matches(item: Any): Boolean = matcher.matches(item) && counter++ == position
+
+            override fun describeTo(description: Description) {
+                description.appendText("Element at hierarchy position $position")
+            }
+        }
+    }
+
+    fun getCount(viewMatcher: Matcher<View>, countLimit: Int = 5): Int {
+        var actualViewsCount = 0
+        do {
+            try {
+                Espresso.onView(ViewMatchers.isRoot())
+                    .check(ViewAssertions.matches(withViewCount(viewMatcher, actualViewsCount)))
+                return actualViewsCount
+            } catch (ignored: Error) {
+            }
+            actualViewsCount++
+        } while (actualViewsCount < countLimit)
+        throw Exception("Counting $viewMatcher was failed. Count limit exceeded")
+    }
+
+    fun withViewCount(viewMatcher: Matcher<View>, expectedCount: Int): Matcher<View?>? {
+        return object : TypeSafeMatcher<View?>() {
+            var actualCount = -1
+            override fun describeTo(description: Description) {
+                if (actualCount >= 0) {
+                    description.appendText("With expected number of items: $expectedCount")
+                    description.appendText("\n With matcher: ")
+                    viewMatcher.describeTo(description)
+                    description.appendText("\n But got: $actualCount")
+                }
+            }
+
+            override fun matchesSafely(root: View?): Boolean {
+                actualCount = 0
+                val iterable = TreeIterables.breadthFirstViewTraversal(root)
+                actualCount = Iterables.filter(iterable, withMatcherPredicate(viewMatcher)).count()
+                return actualCount == expectedCount
+            }
+        }
+    }
+
+    private fun withMatcherPredicate(matcher: Matcher<View>): Predicate<View?>? {
+        return object : Predicate<View?> {
+            override fun apply(@Nullable view: View?): Boolean {
+                return matcher.matches(view)
+            }
+        }
+    }
+}
+```
+
+### Comments
+
+I see only one con: it limits us to the views, that we are considering at the moment, and hides from us everything that is outside the screen.
+
+### Showcase
+
+```kotlin
+@Test
+fun sample() {
+  val fab = withId(R.id.fab)
+
+  onView(ViewCounter.first(fab)).perform(click())
+
+  onView(ViewCounter.last(fab)).perform(click())
+
+  onView(isRoot()).check(matches(ViewCounter.withViewCount(fab, 3))
+}
+```
+
+
+## The second way
+
+is to create two classes:
+
+1. The first class will match the *RecyclerView*. It will give us an opportunity to parse the RecyclerView and to get:
+- matching view at position;
+- any view at position.
+
+```kotlin
+fun withRecyclerView(recyclerViewId: Int): RecyclerViewMatcher {
+    return RecyclerViewMatcher(recyclerViewId)
+}
+
+class RecyclerViewMatcher(val recyclerViewId: Int) {
+    fun atPosition(position: Int): Matcher<View> {
+        return atPositionOnView(position, -1)
+    }
+
+    fun atPositionOnView(position: Int, targetViewId: Int): Matcher<View> {
+        return object : TypeSafeMáatcher<View>() {
+            var resources: Resources? = null
+            var childView: View? = null
+            override fun describeTo(description: Description?) {
+                val id = if (targetViewId == -1) recyclerViewId else targetViewId
+                var idDescription = id.toString()
+                if (resources != null) {
+                    idDescription = try {
+                        resources!!.getResourceName(id)
+                    } catch (var4: NotFoundException) {
+                        String.format("%s (resource name not found)", id)
+                    }
+                }
+                description!!.appendText("with id: $idDescription")
+            }
+
+            override fun matchesSafely(view: View?): Boolean {
+                resources = view?.resources
+                if (childView == null) {
+                    val recyclerView = view?.rootView?.findViewById(recyclerViewId) as RecyclerView
+                    childView = if (recyclerView != null) {
+                        recyclerView.findViewHolderForAdapterPosition(position)!!.itemView
+                    } else {
+                        return false
+                    }
+                }
+                return if (targetViewId == -1) {
+                    view === childView
+                } else {
+                    val targetView: View = childView!!.findViewById(targetViewId)
+                    view === targetView
+                }
+            }
+        }
+    }
+}
+```
+
+2. The second class will handle the *AmbiguousViewMatcherException* and grep a hierarchy of the whole *RecyclerView*. Thanks to it we’ll be able to get:
+- the first matching view;
+- the last matching view;
+- the count of matching views;
+- the possibility to consider all the views inside and outside the screen.
+
+```kotlin
+fun recyclerViewCounter(@IdRes recyclerViewId: Int, action: RecyclerViewCounter.() -> Unit) {
+    action(RecyclerViewCounter(recyclerViewId))
+}
+
+class RecyclerViewCounter(@IdRes private val recyclerViewId: Int) {
+    fun getView(atPosition: Int): Matcher<View> {
+        return withRecyclerView(recyclerViewId).atPosition(atPosition)
+    }
+
+    fun getCount(expectedView: Matcher<View>): Int {
+        val elementsCount = getCount()
+        var expectedViewsCount = 0
+        repeat(elementsCount) {
+            val result = scanPosition(it, expectedView)
+            if (result) {
+                expectedViewsCount++
+            }
+        }
+        return expectedViewsCount
+    }
+
+    fun getLastMatchingPosition(expectedView: Matcher<View>): Int {
+        val elementsCount = getCount()
+        var lastMatchingPosition = -1
+        repeat(elementsCount) {
+            val result = scanPosition(it, expectedView)
+            if (result) {
+                lastMatchingPosition = it
+            }
+        }
+        return lastMatchingPosition
+    }
+
+    fun getFirstMatchingPosition(expectedView: Matcher<View>): Int? {
+        val elementsCount = getCount()
+        repeat(elementsCount) {
+            val result = scanPosition(it, expectedView)
+            if (result) {
+                return it
+            }
+        }
+        return null
+    }
+
+    private fun getCount(): Int {
+        val count = intArrayOf(0)
+        val matcher: Matcher<View> = object : TypeSafeMatcher<View>() {
+            override fun matchesSafely(item: View): Boolean {
+                count[0] = (item as RecyclerView).adapter!!.itemCount
+                return true
+            }
+
+            override fun describeTo(description: Description) {
+              description.appendText("Count of the views inside the RecyclerView")
+            }
+        }
+        onView(CoreMatchers.allOf(ViewMatchers.withId(recyclerViewId), ViewMatchers.isDisplayed()))
+            .check(matches(matcher))
+        return count.first()
+    }
+
+    private fun scanPosition(position: Int, expectedView: Matcher<View>): Boolean {
+        try {
+            onView(ViewMatchers.withId(recyclerViewId))
+                .perform(RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(position))
+            onView(withRecyclerView(recyclerViewId).atPosition(position))
+                .check(matches(hasDescendant(expectedView)))
+        } catch (ignored: AssertionError) {
+            return false
+        }
+        return true
+    }
+}
+```
+
+### Comments
+This way is a bit more complicated, but definitely more flexible and reliable. Also, it «almost» doesn’t contradict the *Espresso* paradigm *(:*
+
+### Showcase
+
+```kotlin
+@Test
+fun sample() {
+  recyclerViewCounter(R.id.recyclerViewId) {
+    val fab = withId(R.id.fab)
+
+    val firstFabPosition = getFirstMatchingPosition(fab)
+    onView(getView(firstFabPosition)).perform(click())
+
+    val lastFabPosition = getLastMatchingPosition(fab)
+    onView(getView(lastFabPosition)).perform(click())
+
+    val actualFabCount = getCount(fab)
+    assertEquals(3, actualFabCount)
+  }
+}
+```
+
+## Conclusion
+The *AmbiguousViewMatcherException* and counting views in *Espresso* are not the problems anymore.
+
+Wish you happy Mondays *(:*
