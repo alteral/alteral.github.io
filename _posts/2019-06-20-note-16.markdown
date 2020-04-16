@@ -1,0 +1,89 @@
+---
+title: "How to sniff a network traffic on Android ≥ 7"
+date: 2019-06-20
+tags:
+  - Android
+  - proxy
+  - sniffing
+  - pentesting
+preview: "/assets/images/note_16.png"
+excerpt: null
+related: true
+toc: true
+toc_label: Contents
+---
+
+{% include magic-under-title.html %}
+
+## Introduction
+
+Today I want to write about sniffing network traffic on *Android*. Let me show you what we had before and what we have after *Android Nougat*:
+
+{: center: style="text-align: center;"}
+![Sniffing without network_security_config.xml](/assets/images/note_16_1.png)
+{: center}
+
+In other words, *Google* removed the feature to sniff a network traffic out of the box in *Android Nougat*. Furthermore, it means, that you won’t be able to sniff a network traffic in apps from *Play Market*.
+Thereby, we should install network security config manually to resurrect sniffing feature. There are two ways to do it:
+- add n*etwork_security_config.xml* in the source
+- inject *network_security_config.xml* in an *.apk* file
+
+**Disclaimer:** https://developer.android.com/training/articles/security-config
+{: .notice--info}
+
+{: center: style="text-align: center;"}
+![Sniffing with network_security_config.xml](/assets/images/note_16_2.png)
+{: center}
+
+## Addition network_security_config.xml in the source
+
+- default
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<manifest ... >
+    <application android:networkSecurityConfig="@xml/network_security_config"
+                    ... >
+        ...
+    </application>
+</manifest>
+```
+
+- custom
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config>
+        <domain includeSubdomains="true">example.com</domain>
+        <trust-anchors>
+            <certificates src="@raw/my_ca"/>
+        </trust-anchors>
+    </domain-config>
+</network-security-config>
+```
+
+But there is a high probability, that *Google* may reject apps have *network_security_config.xml*, because it’s a «care» about peace, rock 'n' roll and safety.
+
+## Injection network_security_config.xml in an .apk file
+
+Here we are able to build a release *.apk*, duplicate it and make a *network_security_config.xml* injection. So, let’s start:
+1. Build an *.apk*
+2. Clone the repo:
+```bash
+$ git clone https://github.com/levyitay/AddSecurityExceptionAndroid.git
+```
+3. Run a script from the repo:
+```bash
+$ ./addSecurityExceptions.sh yourApp.apk
+```
+- the script unpacks your *.apk* via *apktool*
+- injects *network_security_config.xml* into *AndroidManifest.xml*
+- signs and repacks your *.apk*
+4. Your app is ready for test, install it and enjoy the sniffing
+
+## Conclusion
+
+Hope it was interesting or at least a bit useful *(:*
+
+Thanks for the reading and see you!
