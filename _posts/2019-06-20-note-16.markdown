@@ -28,7 +28,7 @@ Thereby, we should install network security config manually to resurrect sniffin
 - add n*etwork_security_config.xml* in the source
 - inject *network_security_config.xml* in an *.apk* file
 
-**Disclaimer:** https://developer.android.com/training/articles/security-config
+**Disclaimer:** [https://developer.android.com/training/articles/security-config](https://developer.android.com/training/articles/security-config)
 {: .notice--info}
 
 {: center: style="text-align: center;"}

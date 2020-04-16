@@ -1,0 +1,164 @@
+---
+title: "Pull out whole information about any app from AppStore"
+date: 2019-06-14
+tags:
+  - iOS
+  - App Store
+preview: "/assets/images/note_15.png"
+excerpt: null
+related: true
+toc: false
+toc_label: Contents
+---
+
+{% include magic-under-title.html %}
+
+## Get an url of required app (e.g. YouTube)
+
+**Disclaimer:** [https://apps.apple.com/us/app/youtube-watch-listen-stream/id544007664](https://apps.apple.com/us/app/youtube-watch-listen-stream/id544007664)
+{: .notice--info}
+
+## Take an app identifier and set it in a new request
+
+**Disclaimer:** [https://itunes.apple.com/lookup?id=544007664](https://itunes.apple.com/lookup?id=544007664)
+{: .notice--info}
+
+## Enjoy the result
+
+*version*, *rating*, *release date* and much more, just look at the *sample response*:
+
+```json
+{
+  "results" : [
+    {
+      "primaryGenreName" : "Photo & Video",
+      "artworkUrl100" : "https:\/\/is3-ssl.mzstatic.com\/image\/thumb\/Purple123\/v4\/4f\/e3\/6b\/4fe36b1b-e7ef-cc70-a3fb-4da243252d85\/source\/100x100bb.jpg",
+      "sellerUrl" : "https:\/\/www.youtube.com",
+      "currency" : "USD",
+      "artworkUrl512" : "https:\/\/is3-ssl.mzstatic.com\/image\/thumb\/Purple123\/v4\/4f\/e3\/6b\/4fe36b1b-e7ef-cc70-a3fb-4da243252d85\/source\/512x512bb.jpg",
+      "ipadScreenshotUrls" : [
+        "https:\/\/is1-ssl.mzstatic.com\/image\/thumb\/Purple113\/v4\/67\/54\/68\/67546885-887f-5ea9-74e9-cafd26fabeb1\/mzl.xproroqw.png\/1024x768bb.png",
+        "https:\/\/is4-ssl.mzstatic.com\/image\/thumb\/Purple113\/v4\/d0\/c2\/81\/d0c281a1-0d6a-2656-170f-66ccbd5b3b24\/mzl.zzfhxybc.png\/1024x768bb.png",
+        "https:\/\/is2-ssl.mzstatic.com\/image\/thumb\/Purple123\/v4\/43\/4c\/72\/434c726b-c8a0-9319-5070-5a5555b493e9\/mzl.gpcziwoh.png\/1024x768bb.png",
+        "https:\/\/is2-ssl.mzstatic.com\/image\/thumb\/Purple113\/v4\/f0\/d7\/f9\/f0d7f9d5-8c27-2138-075b-1b039a7a1175\/mzl.qczwltsx.png\/1024x768bb.png",
+        "https:\/\/is3-ssl.mzstatic.com\/image\/thumb\/Purple113\/v4\/e8\/c3\/2f\/e8c32f0d-5a43-eda2-0967-58db5bb8740b\/mzl.dptqwucx.png\/1024x768bb.png"
+      ],
+      "fileSizeBytes" : "263431168",
+      "genres" : [
+        "Photo & Video",
+        "Entertainment"
+      ],
+      "languageCodesISO2A" : [
+        "IE", "..."
+      ],
+      "artworkUrl60" : "https:\/\/is3-ssl.mzstatic.com\/image\/thumb\/Purple123\/v4\/4f\/e3\/6b\/4fe36b1b-e7ef-cc70-a3fb-4da243252d85\/source\/60x60bb.jpg",
+      "supportedDevices" : [
+        "iPhone5-iPhone5",
+        "iPadFourthGen-iPadFourthGen",
+        "iPadFourthGen4G-iPadFourthGen4G",
+        "iPhone5c-iPhone5c",
+        "iPhone5s-iPhone5s",
+        "iPadAir-iPadAir",
+        "iPadAirCellular-iPadAirCellular",
+        "iPadMiniRetina-iPadMiniRetina",
+        "iPadMiniRetinaCellular-iPadMiniRetinaCellular",
+        "iPhone6-iPhone6",
+        "iPhone6Plus-iPhone6Plus",
+        "iPadAir2-iPadAir2",
+        "iPadAir2Cellular-iPadAir2Cellular",
+        "iPadMini3-iPadMini3",
+        "iPadMini3Cellular-iPadMini3Cellular",
+        "iPodTouchSixthGen-iPodTouchSixthGen",
+        "iPhone6s-iPhone6s",
+        "iPhone6sPlus-iPhone6sPlus",
+        "iPadMini4-iPadMini4",
+        "iPadMini4Cellular-iPadMini4Cellular",
+        "iPadPro-iPadPro",
+        "iPadProCellular-iPadProCellular",
+        "iPadPro97-iPadPro97",
+        "iPadPro97Cellular-iPadPro97Cellular",
+        "iPhoneSE-iPhoneSE",
+        "iPhone7-iPhone7",
+        "iPhone7Plus-iPhone7Plus",
+        "iPad611-iPad611",
+        "iPad612-iPad612",
+        "iPad71-iPad71",
+        "iPad72-iPad72",
+        "iPad73-iPad73",
+        "iPad74-iPad74",
+        "iPhone8-iPhone8",
+        "iPhone8Plus-iPhone8Plus",
+        "iPhoneX-iPhoneX",
+        "iPad75-iPad75",
+        "iPad76-iPad76",
+        "iPhoneXS-iPhoneXS",
+        "iPhoneXSMax-iPhoneXSMax",
+        "iPhoneXR-iPhoneXR",
+        "iPad812-iPad812",
+        "iPad834-iPad834",
+        "iPad856-iPad856",
+        "iPad878-iPad878",
+        "iPadMini5-iPadMini5",
+        "iPadMini5Cellular-iPadMini5Cellular",
+        "iPadAir3-iPadAir3",
+        "iPadAir3Cellular-iPadAir3Cellular",
+        "iPodTouchSeventhGen-iPodTouchSeventhGen"
+      ],
+      "trackViewUrl" : "https:\/\/apps.apple.com\/us\/app\/youtube-watch-listen-stream\/id544007664?uo=4",
+      "description" : "Make watching your favorite videos easier with the YouTube app. Explore brand new content, music, news and more with the official YouTube app for iPhone and iPad.\n\nDiscover even more with the official YouTube app. Subscribe to channels with your favorite content, share them with friends or upload your very own videos for everyone to see.\n\nGet more out of your video streaming app and discover even more with YouTube.\n\nYOUTUBE FEATURES:\n\nDISCOVER BRAND NEW CONTENT\n- Browse YouTube’s personal recommendations on the home tab\n- Watch the hottest videos, from music to viral sensations on the trending tab\n- Like something? Tap like to save to your personal list or share with your friends!\n\nSTREAM MUSIC\n- Find the videos of the latest hits! \n- Watch fresh releases from popular and trending artists\n\nLIVE STREAMS & MORE\n- Get the latest news or watch your favorite popular live streams right on your device!\n\nLEARN FROM THE BEST\n- Practice and learn alongside the best online\n- Watch videos and learn any skill you need \n- Explore thousands of videos for makeup, DIY, tips and more!\n\nCONNECT AND SHARE\n- Let people know how you feel with likes, comments, or shares\n- Directly share your friends favorite videos with your friends\n- Make a playlist that saves your favorite videos\n- See the latest from the creators you follow on the subscriptions tab\n\nDownload the official YouTube app and start watching your favorite videos today!\n\nWITH YOUTUBE PREMIUM, GET YOUTUBE AD-FREE, OFFLINE, AND IN THE BACKGROUND. PLUS, ACCESS TO ALL YOUTUBE ORIGINALS.\n- Watch the videos you love without ads!\n- Play videos in the background, even when you open another app\n- Download videos for when you're low on data or can't get online\n- Discover original series and movies from today's hottest talent\n\nIf you subscribe via iTunes:\n\nPayment will be charged to iTunes Account at confirmation of purchase. Subscription automatically renews unless auto-renew is turned off at least 24 hours before the end of the current period. Account will be charged for renewal within 24 hours prior to the end of the current period at the rate of the selected plan. Subscriptions and auto-renewal may be managed by going to Account Settings after purchase\n\nAny unused portion of a free trial period will be forfeited when purchasing a subscription.\n\nMonthly price: $15.99\n\nYouTube paid service terms: https:\/\/www.youtube.com\/t\/terms_paidservice\nPrivacy policy: https:\/\/www.google.com\/policies\/privacy",
+      "version" : "14.23",
+      "bundleId" : "com.google.ios.youtube",
+      "artistViewUrl" : "https:\/\/apps.apple.com\/us\/developer\/google-llc\/id281956209?uo=4",
+      "userRatingCountForCurrentVersion" : 86090,
+      "appletvScreenshotUrls" : [],
+      "isGameCenterEnabled" : false,
+      "releaseDate" : "2012-09-11T07:23:19Z",
+      "averageUserRatingForCurrentVersion" : 4.5,
+      "genreIds" : [
+        "6008",
+        "6016"
+      ],
+      "trackId" : 544007664,
+      "wrapperType" : "software",
+      "minimumOsVersion" : "10.0",
+      "formattedPrice" : "Free",
+      "primaryGenreId" : 6008,
+      "currentVersionReleaseDate" : "2019-06-09T23:07:29Z",
+      "userRatingCount" : 7694122,
+      "artistId" : 281956209,
+      "trackContentRating" : "17+",
+      "artistName" : "Google LLC",
+      "price" : 0,
+      "trackCensoredName" : "YouTube: Watch, Listen, Stream",
+      "trackName" : "YouTube: Watch, Listen, Stream",
+      "kind" : "software",
+      "features" : [
+        "iosUniversal"
+      ],
+      "contentAdvisoryRating" : "17+",
+      "screenshotUrls" : [
+        "https:\/\/is3-ssl.mzstatic.com\/image\/thumb\/Purple123\/v4\/4a\/a3\/3a\/4aa33a69-acd5-9779-3caf-c1f0f28e4ff7\/mzl.gpcntyew.png\/696x696bb.png",
+        "https:\/\/is4-ssl.mzstatic.com\/image\/thumb\/Purple113\/v4\/da\/bb\/6a\/dabb6aca-31a4-fe77-9a92-312dafd5f323\/mzl.rnzdewny.png\/696x696bb.png",
+        "https:\/\/is2-ssl.mzstatic.com\/image\/thumb\/Purple113\/v4\/fc\/a4\/4a\/fca44a97-0948-ada2-3e72-5d3127bad759\/mzl.pfcurnea.png\/696x696bb.png",
+        "https:\/\/is2-ssl.mzstatic.com\/image\/thumb\/Purple123\/v4\/a9\/86\/2e\/a9862e97-afe3-40d8-4682-29e03404fa11\/mzl.qodnlftq.png\/696x696bb.png"
+      ],
+      "releaseNotes" : "Fixed bugs, improved performance, took out the garbage, mowed the front lawn, and now we need a little nap.",
+      "isVppDeviceBasedLicensingEnabled" : true,
+      "sellerName" : "Google LLC",
+      "averageUserRating" : 4.5,
+      "advisories" : [
+        "Infrequent\/Mild Horror\/Fear Themes",
+        "Infrequent\/Mild Sexual Content and Nudity",
+        "Infrequent\/Mild Simulated Gambling",
+        "Infrequent\/Mild Medical\/Treatment Information",
+        "Infrequent\/Mild Profanity or Crude Humor",
+        "Infrequent\/Mild Realistic Violence",
+        "Infrequent\/Mild Cartoon or Fantasy Violence",
+        "Infrequent\/Mild Alcohol, Tobacco, or Drug Use or References",
+        "Frequent\/Intense Mature\/Suggestive Themes"
+      ]
+    }
+  ],
+  "resultCount" : 1
+}
+```
