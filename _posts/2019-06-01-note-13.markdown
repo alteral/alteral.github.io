@@ -1,0 +1,77 @@
+---
+title: "«Rule your commits» © Git Hook"
+date: 2019-06-01
+tags:
+  - Git
+  - Git hooks
+  - Continuous integration
+preview: "/assets/images/note_13.png"
+excerpt: null
+related: true
+toc: true
+toc_label: Contents
+---
+
+{% include magic-under-title.html %}
+
+*Git Hooks* are really useful guys that help us to control interactions with *Git*. I would like to show you couple of samples of their usage.
+
+## Precondition
+
+First of all we should:
+- create *.githooks* folder near the *.git* folder
+- create a *Makefile* in the project’s *root* that will set *githooks* path and activate them
+- fill the *Makefile* like in the sample below:
+
+```bash
+init:
+  git config core.hooksPath .githooks
+  git config advice.ignoredHook false
+```
+
+To force *Makefile* works, just enough to execute this command in the terminal:
+
+```bash
+$ make
+```
+
+## Commit message
+
+If we are working in a feature branch workflow it would be pretty nice to have an issue name for each commit developer does. To realize it we could:
+- create commit-msg file into the *.githooks* folder
+- add a *regex* into the *commit-msg* file that will verify the commits messages:
+
+```bash
+#!/bin/bash
+
+commit_regex="(ISSUE-[0-9]+|TASK-[0-9]+|merge)"
+if ! grep -iqE "$commit_regex" "$1"; then
+  echo "You have to add issue tag in the commit"
+  exit 1
+fi
+```
+
+If developer won’t set an issue tag in a commit message, he/she will get an error with request to add the issue tag.
+
+## User email
+
+Imagine, we would like each developer to use only corporation emails. So, to realize it we could:
+- open the same *commit-msg* file in the *.githooks* folder
+- add a *regex* into *commit-msg* file that will verify developer’s email:
+
+```bash
+#!/bin/bash
+
+USER_EMAIL=$(git config user.email)
+CORP_DOMAIN="@corp.company.com"
+if [[ $USER_EMAIL != *"$CORP_DOMAIN" ]]; then
+  echo "Your email ($USER_EMAIL) has to contain this domain: $CORP_DOMAIN"
+  exit 1
+fi
+```
+
+If developer won’t set a corp email in the *git* project, he/she will get an error with request to add the correct email
+
+## Conclusion
+
+Eventually I would like to highlight *Git Hooks* give us a soil (or better to say hooks?) for automation. Whether it be issue names collection for release or a simple censure in the commit messages.
