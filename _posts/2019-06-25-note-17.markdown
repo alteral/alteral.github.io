@@ -3,7 +3,7 @@ title: "Configure secure web proxy on macOS via cli"
 date: 2019-06-25
 tags:
   - macOS
-  - proxy
+  - Proxy
 preview: "/assets/images/note_17.png"
 excerpt: null
 related: true

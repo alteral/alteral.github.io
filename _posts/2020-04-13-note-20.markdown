@@ -4,10 +4,10 @@ date: 2020-04-13
 tags:
   - iOS
   - lldb
-  - debug
-  - jailbreak
-  - pentesting
-  - reverse engineering
+  - Debug
+  - Jailbreak
+  - Pentesting
+  - Reverse engineering
 preview: "/assets/images/note_20.png"
 excerpt: null
 related: true

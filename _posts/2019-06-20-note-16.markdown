@@ -3,9 +3,9 @@ title: "How to sniff a network traffic on Android ≥ 7"
 date: 2019-06-20
 tags:
   - Android
-  - proxy
-  - sniffing
-  - pentesting
+  - Proxy
+  - Sniffing
+  - Pentesting
 preview: "/assets/images/note_16.png"
 excerpt: null
 related: true

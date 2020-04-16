@@ -1,0 +1,63 @@
+---
+title: "Opening the curtains (iOS/Android)"
+date: 2019-06-12
+tags:
+  - iOS
+  - Android
+  - Automation testing
+preview: "/assets/images/note_14.png"
+excerpt: null
+related: true
+toc: true
+toc_label: Contents
+---
+
+{% include magic-under-title.html %}
+
+Swiping, swiping, swiping. From dusk till dawn.
+
+## iOS
+
+![Sniffing without network_security_config.xml](/assets/images/note_14_1.png)
+
+```swift
+extension XCUIApplication {
+    func openNotifications() {
+        let up = self.coordinate(withNormalizedOffset: CGVector(dx: 0.1, dy: 0.001))
+        let down = self.coordinate(withNormalizedOffset: CGVector(dx: 0.1, dy: 0.8))
+        up.press(forDuration: 0.1, thenDragTo: down)
+    }
+}
+```
+
+![Sniffing without network_security_config.xml](/assets/images/note_14_2.png)
+
+```swift
+extension XCUIApplication {
+    func openControlCenter() {
+        let down = self.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.999))
+        let up = self.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2))
+        down.press(forDuration: 0.1, thenDragTo: up)
+    }
+}
+```
+
+## Android
+
+![Sniffing without network_security_config.xml](/assets/images/note_14_1.png)
+
+```kotlin
+fun openNotifications() {
+    val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+    device.executeShellCommand("input swipe 0 0 0 500")
+}
+```
+
+![Sniffing without network_security_config.xml](/assets/images/note_14_2.png)
+
+```kotlin
+fun openLaunchPad() {
+    val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+    device.executeShellCommand("input swipe 0 500 0 0")
+}
+```
