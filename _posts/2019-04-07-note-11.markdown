@@ -1,0 +1,87 @@
+---
+title: "OCR or getting text from the screenshot"
+date: 2019-04-07
+tags:
+  - Unity
+  - Automation testing
+  - OCR
+preview: "/assets/images/note_11.png"
+excerpt: null
+related: true
+toc: true
+toc_label: Contents
+---
+
+{% include magic-under-title.html %}
+
+Today I would like to consider one awesome thing — *OCR* (*optical character recognition* or *optical character reader*) and try to apply it in mobile automation.
+
+Last time I told about snapshot testing in *Android* and *iOS*, but this is completely different feature.
+
+## Purpose
+
+I’ll show you how to read text from a mobile screen. I know we could do it with *XCTest* or *Espresso* (or even *UIAutomator*) in our tests, finding elements via locators, but imagine the situation when you are not able to use automation frameworks or, and it will be better example, you have a *Unity* app.
+
+Yeah, *Unity* is not the most testable platform. *Unity* tests run in the app, the result after (**and no else**) looks like this:
+
+:-------------------------:|:-------------------------:
+![Succeess](/assets/images/note_11_1.png)  |  ![Failure](/assets/images/note_11_2.png)
+
+## Fork in the road
+
+Here I see at least three ways:
+- compare screenshots — umm, store referent images?
+- compare pixel colour — is it really your best decision?
+- read the text — perfect one! *(:*
+
+So, let’s go with the last one.
+
+## Fulfilment
+
+*1.* First of all we should take a screenshot:
+- *Android*
+
+```bash
+$ adb shell /system/bin/screencap -p /sdcard/screenshot.png
+$ adb pull /sdcard/screenshot.png screenshot.png
+```
+
+- *iOS*
+
+```bash
+$ idevicescreenshot screenshot.png
+```
+
+*2.* Main hero here is a *tesseract* — *cli* for *OCR*
+
+```bash
+$ brew install tesseract
+```
+
+*3.* Eventually we will read the text from screenshot and print it in the terminal
+
+```bash
+$ tesseract screenshot.png stdout -l eng
+```
+
+## Bonus
+
+If you have a pretty small text size like in my sample, it could be really difficult for *tesseract* to recognise it. There is one thing we are able to do:
+
+```bash
+$ brew install imagemagick
+```
+
+*Imagemagick* is a gorgeous tool for working with images via *terminal* and has truly a lot of features. So, below you can see an example how to cut down the image to *500px* wide and *100px* high starting at pixel *x==0 && y==0*:
+
+```bash
+$ convert screenshot.png -crop 500x100+0+0 screenshot.png
+$ tesseract screenshot.png stdout -l eng
+```
+
+## Conclusion
+
+Today we affect two awesome tools — *tesseract* and *imagemagick*. Suggest you to read more about them and put into practice. Perhaps it will be a pretty start to the love of working with images.
+
+
+See you soon *(:*

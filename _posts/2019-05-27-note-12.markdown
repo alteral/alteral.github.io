@@ -32,19 +32,19 @@ toc_label: Contents
 
 ## Provide access for JJB
 
-- go to user configuration page:
+*1.* go to user configuration page:
 
 ```bash
 http://<jenkins url>/user/<user name>/configure
 ```
 
-- generate *API Token*:
+*2.* generate *API Token*:
 
 {: center: style="text-align: center;"}
 ![API Token](/assets/images/note_12_1.png)
 {: center}
 
-- create *jenkins_jobs.ini* file in the root of repository and put *API Token* (password field) and *User Name* (user field) there:
+*3.* create *jenkins_jobs.ini* file in the root of repository and put *API Token* (password field) and *User Name* (user field) there:
 
 ```ini
 [jenkins]
@@ -55,13 +55,15 @@ user=a.alterpesotskiy
 ## CI Server which is deploying itself
 
 Our first job will be the most important. It will be essential, because of its influence. This job will have to update all *Jenkins* jobs after every commit with changes. We will call it «*JenkinsDeploy*». So, let's go:
-- create *JenkinsDeploy* job via *Jenkins web interface*
+
+*1.* create *JenkinsDeploy* job via *Jenkins web interface*
 
 This is an exception, because it will be only the one job we create via *Jenkins UI*
 {: .notice--info}
 
-- create *JenkinsDeploy.yml* template in the *jobs/* folder
-- fill the template like this:
+*2.* create *JenkinsDeploy.yml* template in the *jobs/* folder
+
+*3.* fill the template like this:
 
 ```yml
 - job:
