@@ -15,12 +15,12 @@ toc_label: Contents
 
 ## Get an url of required app (e.g. YouTube)
 
-**Disclaimer:** [https://apps.apple.com/us/app/youtube-watch-listen-stream/id544007664](https://apps.apple.com/us/app/youtube-watch-listen-stream/id544007664)
+[https://apps.apple.com/us/app/youtube-watch-listen-stream/id544007664](https://apps.apple.com/us/app/youtube-watch-listen-stream/id544007664)
 {: .notice--info}
 
 ## Take an app identifier and set it in a new request
 
-**Disclaimer:** [https://itunes.apple.com/lookup?id=544007664](https://itunes.apple.com/lookup?id=544007664)
+[https://itunes.apple.com/lookup?id=544007664](https://itunes.apple.com/lookup?id=544007664)
 {: .notice--info}
 
 ## Enjoy the result

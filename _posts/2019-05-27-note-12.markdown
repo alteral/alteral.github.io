@@ -1,0 +1,155 @@
+---
+title: "Jenkins which deploys itself"
+date: 2019-05-27
+tags:
+  - Jenkins
+  - Continuous integration
+preview: "/assets/images/note_12.png"
+excerpt: null
+related: true
+toc: true
+toc_label: Contents
+---
+
+{% include magic-under-title.html %}
+
+[Jenkins](https://medium.com/r/?url=https%3A%2F%2Fjenkins.io%2F) - free, flexible, popular and gorgeous continuous integration server.
+[Jenkins Pipeline](https://medium.com/r/?url=https%3A%2F%2Fwiki.jenkins.io%2Fdisplay%2FJENKINS%2FPipeline%2BPlugin) - plugin to build continuous delivery pipelines as a code (further Pipeline).
+[Jenkins Job Builder](https://medium.com/r/?url=https%3A%2F%2Fgithub.com%2Fopenstack-infra%2Fjenkins-job-builder) - tool to make jobs from templates in a human readable text format and keep them in a version control system (further JJB).
+
+## Purpose
+
+- minimize or exclude the relationships with *Jenkins UI*
+- provide *CI* which will deploying itself
+- make things easy and flexible
+
+## Precondition
+
+- make sure you have already installed *Jenkins*
+- install *pipeline* plugin
+- install *JJB*
+- create git repository for *job* templates and *pipeline* files
+
+## Provide access for JJB
+
+- go to user configuration page:
+
+```bash
+http://<jenkins url>/user/<user name>/configure
+```
+
+- generate *API Token*:
+
+{: center: style="text-align: center;"}
+![API Token](/assets/images/note_12_1.png)
+{: center}
+
+- create *jenkins_jobs.ini* file in the root of repository and put *API Token* (password field) and *User Name* (user field) there:
+
+```ini
+[jenkins]
+password=2433a61e9bc33fb4633de6d39d332b33
+user=a.alterpesotskiy
+```
+
+## CI Server which is deploying itself
+
+Our first job will be the most important. It will be essential, because of its influence. This job will have to update all *Jenkins* jobs after every commit with changes. We will call it «*JenkinsDeploy*». So, let's go:
+- create *JenkinsDeploy* job via *Jenkins web interface*
+
+This is an exception, because it will be only the one job we create via *Jenkins UI*
+{: .notice--info}
+
+- create *JenkinsDeploy.yml* template in the *jobs/* folder
+- fill the template like this:
+
+```yml
+- job:
+    builders:
+    - shell: |-
+        jenkins-jobs --log_level debug --conf jenkins_jobs.ini update jobs/
+    name: 'JenkinsDeploy'
+    project-type: freestyle
+    scm:
+    - git:
+        branches:
+        - '*/master'
+        credentials-id: bc71cef3-f7ca-4ec1-3325-9c13d871b92b
+        url: git@gitlab.alteral.ru:sample/jenkins.git
+        wipe-workspace: true
+    triggers:
+    - pollscm:
+        cron: '* * * * *'
+        ignore-post-commit-hooks: false
+```
+
+I'll try to explain what is taking place in the job template:
+- *Jenkins* clones the repository with a project from git (via *scm* plugin)
+- *JJB* updates *Jenkins jobs* from templates (via *jenkins-jobs* cli)
+- It does it after each commit (checking for changes every minute)
+
+## Project contents
+
+{: center: style="text-align: center;"}
+![Project contents](/assets/images/note_12_2.png)
+{: center}
+
+## Sample: JJB + Pipeline
+
+Finally I might to show how everything works here at the simple example. How to make it as simple as possible? We will build a job, that will create an empty folder. That's all.
+- *template* (*jobs/mkdir.yml*)
+
+```yml
+- job:
+    project-type: pipeline
+    name: 'MKDIR'
+    sandbox: true
+    parameters:
+    - string:
+        default: 'test'
+        description: 'folder name'
+        name: FOLDER_NAME
+    pipeline-scm:
+        scm:
+        - git:
+            url: git@gitlab.alteral.ru:sample/jenkins.git
+            branches:
+              - '*/master'
+            clean: true
+            credentials-id: bc71cef3-f7ca-4ec1-3325-9c13d871b92b
+        script-path: pipeline/mkdir.groovy
+        lightweight-checkout: true
+    wrappers:
+    - build-name:
+        name: "#$BUILD_NUMBER mkdir $FOLDER_NAME"
+```
+
+- *pipeline* (*pipeline/mkdir.groovy*)
+
+```groovy
+timeout(5) {
+  node("master") {
+    stage("Create folder") {
+      sh("mkdir -p ${FOLDER_NAME}")
+      echo("${FOLDER_NAME} was successfully created.")
+    }
+  }
+}
+```
+
+So, this job will be automatically deployed after push via *JenkinsDeploy* job.
+
+## Conclusion
+
+What opportunities does it open?
+- We might to describe whole *CI*/*CD* process as a code.
+- We might to combine many *jobs* and *pipeline* scripts in one template via *JJB*.
+- We might to relish of the resulting workspace.
+- We might to spend our obtained free time on useful things.
+
+Also I would like to add that via *JJB* we can describe many *Jenkins Plugins* in *.yml*/*.json* representations and use many strategies to make our pipelines more flexible and expandable. If it was at least a little bit interesting, you can borrow much more interestingness from the official documentation:
+
+[jenkins-job-builder/latest/jenkins-job-builder.pdf](https://buildmedia.readthedocs.org/media/pdf/jenkins-job-builder/latest/jenkins-job-builder.pdf)
+{: .notice--info}
+
+Thanks for reading *(:*
