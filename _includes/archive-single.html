@@ -18,6 +18,7 @@
       </div>
     {% endif %}
     <h2 class="archive__item-title" itemprop="headline">
+      <!-- <img src="{{ post.preview }}" width="66" alt="Preview"> -->
       {% if post.link %}
         <a href="{{ post.link }}">{{ title }}</a> <a href="{{ post.url | relative_url }}" rel="permalink"><i class="fas fa-link" aria-hidden="true" title="permalink"></i><span class="sr-only">Permalink</span></a>
       {% else %}
