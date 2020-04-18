@@ -1,0 +1,107 @@
+---
+title: "How to download an .ipa from App Store"
+date: 2019-03-08
+tags:
+  - iOS
+  - App Store
+  - ipa
+  - Pentesting
+preview: "/assets/images/note_8.png"
+excerpt: null
+related: true
+toc: true
+toc_label: Contents
+---
+
+{% include magic-under-title.html %}
+
+## Introduction
+
+There are two ways to download *iOS* app from *Apple App Store* for your attention:
+
+**1.** Using [*Apple Configurator 2*](https://medium.com/r/?url=https%3A%2F%2Fitunes.apple.com%2Fus%2Fapp%2Fapple-configurator-2%2Fid1037126344) (legal way)
+- Here you need to have an app on your phone.
+
+**2.** Using anyone *iOS* executable dumper (illegal way)
+- Here you have to be *Jailbroken*.
+
+{: center: style="text-align: center;"}
+![Xcode image](/assets/images/note_8_1.png)
+{: center}
+<p align="center" style="font-size:60%;">Those apps placed here. HTTP, Carl! ~ <a href="http://iosapps.itunes.apple.com">http://iosapps.itunes.apple.com</a></p>
+
+## Using Apple Configurator
+
+**1.** Download an app from *App Store* to your phone
+
+**2.** Open *Apple Configurator 2* on your *Mac* and log into your *Apple* account
+
+**3.** Connect your phone to your *Mac* using a *USB* cable
+
+**4.** Into *Apple Configurator 2* select your phone
+
+**5.** Then tap on the «Add» button in the top, then tap on Apps button
+
+**6.** Choose the app and tap on «Add» button
+
+**7.** Finally it could tell you an app already exists, but don’t worry — just be in a hurry to grab an *.ipa* using this path:
+
+```bash
+~/Library/Group\ Containers/K36BKF7T3D.group.com.apple.configurator/Library/Caches/Assets/TemporaryItems/MobileApps/
+```
+
+## Using anyone iOS executable dumper
+
+As I said for this method you will need a *Jailbreak*. It can be illegal and provoke side effects, so do it at your own risk. When writing this article I used [*Checkra1n*](https://cydia-app.com/checkrain/) and [*frida-ios-dump*](https://github.com/AloneMonkey/frida-ios-dump) for this purpose.
+
+**On device:**
+
+**1.** Make a *Jailbreak*
+
+**2.** Open *Cydia* app
+
+**3.** Add the source <a href="https://build.frida.re" rel="permalink">https://build.frida.re</a>
+
+**4.** Search for *Frida* and install it
+
+**On computer:**
+
+**1.** Install [*frida*](https://frida.re/)
+
+```bash
+$ pip3 install frida-tools
+```
+
+**2.** Install [*frida-ios-dump*](https://github.com/AloneMonkey/frida-ios-dump)
+
+```bash
+$ git clone https://github.com/AloneMonkey/frida-ios-dump.git
+$ cd frida-ios-dump
+$ pip3 install -r requirements.txt --upgrade
+```
+
+**3.** Install [usbmuxd](https://iphonedevwiki.net/index.php/SSH_Over_USB)
+
+```bash
+$ brew install usbmuxd
+```
+
+**4.** Connect to your phone using *ssh*
+
+```bash
+$ iproxy 2222 44 & sleep 3
+$ ssh -p 2222 root@localhost # default password: alpine
+```
+
+**5.** Open a new *Terminal* window and pull decrypted *.ipa*
+
+```bash
+$ cd frida-ios-dump
+$ python3 dump.py "<your_bundle>" # default password: alpine
+```
+
+## Conclusion
+
+Downloading apps from *Apple App Store* is pretty hard process, but still possible as manually as automated.
+
+Also you could to find an answer how to download an *.apk* from *Android Play Store* <a href="/note-7/" rel="permalink">here</a>.

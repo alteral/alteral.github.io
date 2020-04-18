@@ -21,7 +21,7 @@ toc_label: Contents
 - [*macOS*](https://www.apple.com/macos)
 - [*Xcode*](https://www.ics.uci.edu/~pattis/common/handouts/macmingweclipse/allexperimental/macxcodecommandlinetools.html)
 - [*usbmuxd*](http://macappstore.org/usbmuxd)
-- Jailbroken *iDevice* connected via *USB* (e.g.: [checkra1n](https://checkra.in))
+- Jailbroken *iDevice* connected via *USB* (e.g.: [checkra1n](https://cydia-app.com/checkrain/))
 
 
 ## Installation
