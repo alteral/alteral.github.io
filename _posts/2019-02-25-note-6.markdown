@@ -1,0 +1,217 @@
+---
+title: "MITM can be pretty easy with Mitmproxy and Python"
+date: 2019-03-07
+tags:
+  - mitm
+  - mitmproxy
+  - Sniffing
+  - Pentesting
+  - iOS
+  - Android
+preview: "/assets/images/note_6.png"
+excerpt: null
+related: true
+toc: true
+toc_label: Contents
+---
+
+{% include magic-under-title.html %}
+
+## Introduction
+
+First of all I would like to link [wiki](https://en.wikipedia.org/wiki/Man-in-the-middle_attack) *MITM* definition. If you are interested in my simple explanation, *MITM* is a hacker attack, in which there is a client, a server and that man from the title in the middle. Man in the middle changes the original connection of the user and receives full access to his traffic with ability to add or remove any stuff in requests and responses.
+
+*[Mitmproxy](https://mitmproxy.org/)* — is your swiss-army knife for debugging, testing, privacy measurements and penetration testing. This is about *HTTP* and *HTPPS* requests and touch on not only mobile (*iOS/Android*), but also *OSX*, *Windows* and *Linux* apps. Especially nice that it is *FREE*.
+
+In this note, I will not go through the advantages of *mitmproxy* over other similar tools (*Charles, scat!*), but believe me, there are more than disadvantages.
+
+{: center: style="text-align: center;"}
+![Mitm](/assets/images/note_6_1.png)
+{: center}
+
+## Install
+
+```bash
+$ brew install mitmproxy
+```
+
+## Broad variety of UI
+
+*Mitmproxy* has three interfaces for every taste:
+
+**1.** *Cli*
+
+```bash
+$ mitmproxy
+```
+
+**2.** *Web* (I personally prefer this one)
+
+```bash
+$ mitmweb
+```
+
+**3.** *Log dump*
+
+```bash
+$ mitmdump
+```
+
+## Usage
+
+{: center: style="text-align: center;"}
+![Mitm](/assets/images/note_6_2.png)
+{: center}
+
+**1.** Connect to the same *Wi-Fi* on computer and device
+
+**2.** Start *mitmproxy* on computer
+
+**3.** Open *Wi-Fi* settings on device and set up proxy with laptop ip and *mitmproxy* port (*8080* by default)
+
+**4.** Open [mitm.it](http://mitm.it/) on device browser and choose your platform
+
+**5.** Then install downloaded certificate and trust it
+
+Now you can sniff your traffic via *mitmproxy*.
+
+## Ignore hosts
+
+A [useful option](https://docs.mitmproxy.org/stable/howto-ignoredomains/) when we don't have to sniff traffic from some hosts, but if we sniff them we can receive a lot of problems. For example, if we don't ignore:
+
+- **android.clients.google.com**, we will have problems with signing into the *Play Store*
+
+{: center: style="text-align: center;"}
+![Play Store connection error](/assets/images/note_6_3.png)
+{: center}
+
+- **init.itunes.apple.com** and **itunes.apple.com**, we will have problems with signing into the *App Store*
+
+{: center: style="text-align: center;"}
+![App Store connection error](/assets/images/note_6_4.png)
+{: center}
+
+- **ppq.apple.com**, we will get this pop-up for some apps
+
+{: center: style="text-align: center;"}
+![Unable to verify app error](/assets/images/note_6_5.png)
+{: center}
+
+So, let's ignore these hosts. In order to do it we should set up little *regex* at startup of *mitmproxy*:
+
+```bash
+$ mitmweb --ignore-hosts '^(?:(?!android.clients.google.com|appldnld.apple.com|mesu.apple.com|ppq.apple.com).)*$'
+```
+
+## What have the Python?
+
+We got to the most powerful feature => *python* injection *(:*
+
+The main things we should create:
+- import *mitmproxy* lib to start
+- method request, if we want to modify our requests and/or create new responses
+- method response, if we want to modify server responses
+
+```python
+from mitmproxy import http
+
+def request(flow: http.HTTPFlow) -> None:
+   print("here will be request modification via flow.request and its params")
+
+def response(flow: http.HTTPFlow) -> None:
+   print("here will be response modification via flow.response and its params")
+```
+
+Exactly in these two methods that we can control **whole traffic**.
+
+**Attention!** The following examples are really useful, but don't claim to be exhaustive, but only describe some of the possibilities of interaction with the [*mitmproxy API*](https://mitmproxy.readthedocs.io/en/v2.0.2/scripting/api.html). Something heavier, and generally anything you want you can find in the [official examples](https://github.com/mitmproxy/mitmproxy/tree/master/examples).
+
+- kill requests (e.g.: kill *iOS* requests for update):
+
+```python
+from mitmproxy import http
+
+block_hosts = [ "appldnld.apple.com", "mesu.apple.com" ]
+
+def request(flow: http.HTTPFlow) -> None:
+  if any(host in flow.request.pretty_host for host in block_hosts):
+    flow.kill
+```
+
+- change query/headers of requests/responses:
+
+```python
+from mitmproxy import http
+
+def request(flow: http.HTTPFlow) -> None:
+  flow.request.query["mitm"] = "proxy"
+  flow.request.headers["newheader"] = "foo"
+
+def response(flow: http.HTTPFlow) -> None:
+  flow.response.query["proxy"] = "mitm"
+  flow.response.headers["newheader"] = "bar"
+```
+
+- change response code (e.g.: return 503 for offline emulation):
+
+```python
+from mitmproxy import http
+
+def response(flow: http.HTTPFlow) -> None:
+  flow.response.status_code = 503
+```
+
+- redirect requests:
+
+```python
+from mitmproxy import http
+
+def request(flow: http.HTTPFlow) -> None:
+  flow.request.host = "127.0.0.1"
+  flow.request.scheme = "http"
+  flow.request.port = 4567
+```
+
+- create own responses:
+
+```python
+from mitmproxy import http
+
+def request(flow: http.HTTPFlow) -> None:
+  flow.response = http.HTTPResponse.make(
+    204,
+    '{"foo":"bar"}',
+    {"Content-Type": "application/json"}
+  )
+```
+
+## Don't take seriously
+
+What if we want to flip all the images in the server responses?
+
+```python
+import io
+from PIL import Image
+from mitmproxy import http
+
+def response(flow: http.HTTPFlow) -> None:
+  if flow.response.headers.get("content-type", "").startswith("image"):
+    s = io.BytesIO(flow.response.content)
+    img = Image.open(s).rotate(180)
+    s2 = io.BytesIO()
+    img.save(s2, "png")
+    flow.response.content = s2.getvalue()
+    flow.response.headers["content-type"] = "image/png"
+```
+
+{: center: style="text-align: center;"}
+![Don't take seriously](/assets/images/note_6_6.gif)
+{: center}
+
+## Conclusion
+
+*MITM* attacks in real life can be a bit more complicated due to requirement of physical access to the device (*hi https*). The main thing that we should take from *MITM* is an analysis of ours, let me highlight, **not another's, but ours traffic**. An interesting discovery may be the number of requests with our data flowing to other servers from our own devices and our favorite apps.
+
+If you had any questions or clarifications after reading the note about the *MITM* or *mitmproxy*, I'll be happy to answer them.
+
+So, wish you happy Mondays *(:*
