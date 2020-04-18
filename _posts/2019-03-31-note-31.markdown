@@ -1,0 +1,86 @@
+---
+title: "How to avoid «Application Verification Failed» on iOS"
+date: 2019-03-31
+tags:
+  - iOS
+  - Xcode
+  - ipa
+  - Automation testing
+preview: "/assets/images/note_9.gif"
+excerpt: null
+related: true
+toc: true
+toc_label: Contents
+---
+
+{% include magic-under-title.html %}
+
+Sometimes, when we would like to install another’s *iOS* app on our device we might to come across with *«Application Verification Failed»*.
+It can be rare case, because it is really a concatenation of circumstances and means, that you received the app without your team’s *provision profile*. Anyway we are able to solve this problem.
+
+## Plan
+
+1. Get own *provisioning profile*
+2. Resign the app
+3. Install the app
+
+## Precondition
+
+First of all, to make our life better and easier, we should install *ideviceinstaller* and *fastlane*:
+
+```bash
+$ brew install ideviceinstaller
+$ gem install fastlane
+```
+
+## Provisioning profile
+
+Then we need to get a provision profile. If you already have it, you can jump to the next step, if not, let’s go on.
+
+**As *Apple* said**:
+
+*Xcode* is the easiest way to create an *iOS provisioning profile*. Connect your device to your *Mac* and click *Use for Development* in *Xcode’s Organizer* window. Sign in with the *Apple ID* associated with your *Apple Developer Program* membership and *Xcode* will generate a *provisioning profile* containing your certificate and device identifier.
+{: .notice--info}
+
+So, in this case it doesn’t matter of signing type, will it be personal team or organisation team.
+
+## Resign the app
+
+Here we need three things:
+- *.ipa*
+- *.mobileprovision*
+- *iOS Developer Certificate*
+
+I hope you have got an *.ipa*, other ones we can get from *Xcode*:
+
+{: center: style="text-align: center;"}
+![Xcode image](/assets/images/note_9_1.png)
+{: center}
+
+**So**:
+
+- drag and drop *iOS Team Provisioning Profile* from *Xcode* tooltip into the folder with *.ipa*
+- copy *iPhone Developer Certificate* from the same tooltip
+- then resign the app via *fastlane* like this:
+
+```bash
+$ fastlane sigh resign testapp.ipa --signing_identity "iPhone Developer: a.alterpesotskiy@test.com (KJRTP5GJS9)" -p "test.mobileprovision"
+```
+
+## Install the app
+
+{: center: style="text-align: center;"}
+![Success](/assets/images/note_9_2.gif)
+{: center}
+
+**P.S.**:
+
+If you see this pop-up, you can go to **Settings => General => Device Management** on the device to trust the developer and allow the app to be run (see [*Apple* documentation](https://medium.com/r/?url=https%3A%2F%2Fsupport.apple.com%2Fen-us%2FHT204460) for more information):
+
+{: center: style="text-align: center;"}
+![Popup](/assets/images/note_9_3.png)
+{: center}
+
+## Conclusion
+
+To sum it up, I would say that *«Application Verification Failed»* is hardly a problem. Now we can install any *.ipa* on any devices *(:*

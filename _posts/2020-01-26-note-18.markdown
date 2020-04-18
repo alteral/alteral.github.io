@@ -1,5 +1,5 @@
 ---
-title: "Counting views in Espresso or how to avoid AmbiguousViewMatcherException"
+title: "Counting views in Espresso or how to avoid «Ambiguous View Matcher Exception»"
 date: 2020-01-26
 tags:
   - Android
