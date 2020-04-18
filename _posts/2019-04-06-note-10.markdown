@@ -1,0 +1,54 @@
+---
+title: "Android apps under the microscope"
+date: 2019-04-06
+tags:
+  - Android
+  - Pentesting
+  - Reverse engineering
+preview: "/assets/images/note_10.png"
+excerpt: null
+related: true
+toc: true
+toc_label: Contents
+---
+
+{% include magic-under-title.html %}
+
+Would you like to look under the hood of any *Android* app?
+
+You are welcome! *(:*
+{: .notice--info}
+
+## Precondition
+
+- *dex2jar* — tool for converting *.dex* file to *.class* files
+
+```bash
+$ brew install dex2jar
+```
+
+- *jd-gui* — tool for decompiling and analysing *Java* byte code
+
+```bash
+$ brew cask install jd-gui
+```
+
+## Let’s go
+
+**1.** First of all we should get the *.apk*. If you haven’t one, you are able to download it from store (for more info read this note).
+**2.** Then we need to convert our *.apk* into the classes (*.jar*):
+
+```bash
+$ d2j-dex2jar test.apk -o test.jar
+```
+**3.** Eventually we should just decompile received .jar and look under the hood:
+
+```bash
+$ open -a jd-gui test.jar
+```
+
+## Conclusion
+
+Today we affect two awesome tools — *dex2jar* and *jd-gui*. Suggest you to put them into practice. Perhaps it will be a deeply fascinating diving in reverse engineering.
+
+Thanks and see you later *(:*

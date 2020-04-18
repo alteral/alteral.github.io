@@ -13,9 +13,11 @@ toc_label: Contents
 
 {% include magic-under-title.html %}
 
-[Jenkins](https://medium.com/r/?url=https%3A%2F%2Fjenkins.io%2F) - free, flexible, popular and gorgeous continuous integration server.
-[Jenkins Pipeline](https://medium.com/r/?url=https%3A%2F%2Fwiki.jenkins.io%2Fdisplay%2FJENKINS%2FPipeline%2BPlugin) - plugin to build continuous delivery pipelines as a code (further Pipeline).
-[Jenkins Job Builder](https://medium.com/r/?url=https%3A%2F%2Fgithub.com%2Fopenstack-infra%2Fjenkins-job-builder) - tool to make jobs from templates in a human readable text format and keep them in a version control system (further JJB).
+- [*Jenkins*](https://medium.com/r/?url=https%3A%2F%2Fjenkins.io%2F) - free, flexible, popular and gorgeous continuous integration server.
+
+- [*Jenkins Pipeline*](https://medium.com/r/?url=https%3A%2F%2Fwiki.jenkins.io%2Fdisplay%2FJENKINS%2FPipeline%2BPlugin) - plugin to build continuous delivery pipelines as a code (further *Pipeline*).
+
+- [*Jenkins Job Builder*](https://medium.com/r/?url=https%3A%2F%2Fgithub.com%2Fopenstack-infra%2Fjenkins-job-builder) - tool to make jobs from templates in a human readable text format and keep them in a version control system (further *JJB*).
 
 ## Purpose
 
