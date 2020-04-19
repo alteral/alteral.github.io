@@ -60,7 +60,7 @@ As I said for this method you will need a *Jailbreak*. It can be illegal and pro
 
 **2.** Open *Cydia* app
 
-**3.** Add the source <a href="https://build.frida.re" rel="permalink">https://build.frida.re</a>
+**3.** Add the source [https://build.frida.re](https://build.frida.re)"
 
 **4.** Search for *Frida* and install it
 
@@ -104,4 +104,4 @@ $ python3 dump.py "<your_bundle>" # default password: alpine
 
 Downloading apps from *Apple App Store* is pretty hard process, but still possible as manually as automated.
 
-Also you could to find an answer how to download an *.apk* from *Android Play Store* <a href="/note-7/" rel="permalink">here</a>.
+Also you could to find an answer how to download an *.apk* from *Android Play Store* [here](/note-7/).

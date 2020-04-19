@@ -92,4 +92,4 @@ $ gp-download "<your_bundle>" > app.apk
 ## Conclusion
 Downloading apps from *Google Play Store* can be pretty easy process as manually as automated.
 
-Also you could to find an answer how to download an *.ipa* from *Apple App Store* <a href="/note-8/" rel="permalink">here</a>.
+Also you could to find an answer how to download an *.ipa* from *Apple App Store* [here](/note-8/).

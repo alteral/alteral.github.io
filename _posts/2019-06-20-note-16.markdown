@@ -1,5 +1,5 @@
 ---
-title: "How to sniff a network traffic on Android ≥ 7"
+title: "How to sniff network traffic on Android ≥7"
 date: 2019-06-20
 tags:
   - Android

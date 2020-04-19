@@ -35,7 +35,7 @@ $ brew cask install jd-gui
 
 ## Let’s go
 
-**1.** First of all we should get the *.apk*. If you haven’t one, you are able to download it from store (for more info read <a href="/note-7/" rel="permalink">this note</a>).
+**1.** First of all we should get the *.apk*. If you haven’t one, you are able to download it from store (for more info read [this note](/note-7/).
 **2.** Then we need to convert our *.apk* into the classes (*.jar*):
 
 ```bash

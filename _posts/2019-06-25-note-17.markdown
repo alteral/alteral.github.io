@@ -37,4 +37,4 @@ $ networksetup -setsecurewebproxystate Ethernet 1
 $ networksetup -setsecurewebproxystate Ethernet 0
 ```
 
-To get more interesting things about network automation read <a href="/note-6/" rel="permalink">this note</a>.
+To get more interesting things about network automation read [this note](/note-6/).

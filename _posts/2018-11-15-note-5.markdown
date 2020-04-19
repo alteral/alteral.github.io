@@ -1,0 +1,223 @@
+---
+title: "Screenshot testing in Espresso"
+date: 2018-11-15
+tags:
+  - Android
+  - Espresso
+  - Snapshot testing
+  - Automation testing
+preview: "/assets/images/note_5.png"
+excerpt: null
+related: true
+toc: true
+toc_label: Contents
+---
+
+{% include magic-under-title.html %}
+
+## Introduction
+
+At last time I talked about [snapshot testing on iOS](/note-4/). Now I would like to turn to the second, no less popular mobile platform, — *Android*. Here we are very limited in the choice of tools for the snapshot verifying using native frameworks.
+
+The popular tool from *Facebook: [Screenshot-Tests-For-Android](http://facebook.github.io/screenshot-tests-for-android)* will spend the biggest part of my note. Probably I should highlight at the beginning, that although this tool is the market leader and the trend for the forks, it grows rather slowly (*v0.8.0* at the time of article publication) and it has several lacks, which I will discuss with a little comparative analysis with *iOS*.
+
+We may have noticed the confusing difference between the type of the name of this testing on both platforms: *Snapshot Testing on iOS* and *Screenshot Testing on Android*. I propose to perceive it as a confrontation between a simulator and an emulator *(:*
+
+## Precondition
+
+To pick up closer to *Screenshot-Tests-For-Android* project we need to make a few simple motions:
+
+**1.** Install python dependencies:
+
+```bash
+$ pip install mock
+$ pip install Pillow
+```
+
+**2.** Add permission for write in storage into *AndroidManifest.xml*:
+
+```xml
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+```
+
+**3.** Setup gradle plugin:
+
+- in root *build.gradle*
+
+```groovy
+buildscript {
+
+   dependencies {
+
+      classpath 'com.facebook.testing.screenshot:plugin:0.8.0'
+
+   }
+
+}
+```
+
+- in app *build.gradle*
+
+```groovy
+apply plugin: 'com.facebook.testing.screenshot'
+```
+
+**4.** Create custom *Test Runner*:
+
+```kotlin
+// Set this test runner in your app build.gradle like this:
+// defaultConfig { testInstrumentationRunner "com.my.example.ScreenshotTestRunner" }
+
+class ScreenshotTestRunner: AndroidJUnitRunner() {
+    override fun onCreate(arguments: Bundle) {
+        ScreenshotRunner.onCreate(this, arguments)
+        super.onCreate(arguments)
+    }
+
+    override fun finish(resultCode: Int, results: Bundle) {
+        ScreenshotRunner.onDestroy()
+        super.finish(resultCode, results)
+    }
+}
+```
+
+## Usage
+
+In order to run screenshot testing along with simple *Espresso* tests, we will need to use *gradle* tasks:
+
+```
+· clean<App Variant>Screenshots - Clean last generated screenshot report
+· pull<App Variant>Screenshots - Pull screenshots from your device
+· record<App Variant>ScreenshotTest - Installs and runs screenshot tests, then records their output for later verification
+· run<App Variant>ScreenshotTest - Installs and runs screenshot tests, then generates a repor
+· verify<App Variant>ScreenshotTest - Installs and runs screenshot tests, then verifies their output against previously recorded screenshots
+```
+
+## Available checks
+
+{: center: style="text-align: center;"}
+![Scheme](/assets/images/note_5_1.png)
+{: center}
+
+### Whole activity
+
+```kotlin
+@Test
+fun test_Activity_and_View_Snapshot() {
+    val activity = activityTestRule.launchActivity(null)
+    Screenshot.snapActivity(activity).record()
+}
+```
+
+### Bloated view
+
+```kotlin
+@Test
+fun test_View_Snapshot() {
+    val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+    val inflater = LayoutInflater.from(targetContext)
+    val view = inflater.inflate(R.layout.search_bar, null, false)
+    val tv = view.findViewById(R.id.search_box) as TextView
+    tv.text = "This is a really long text and should overflow"
+    ViewHelpers.setupView(view).setExactWidthDp(300).layout()
+    Screenshot.snap(view).record()
+}
+```
+
+### Any element
+
+```kotlin
+@Test
+fun test_View_Snapshot() {
+    val activity = activityTestRule.launchActivity(null)
+    val view = activityTestRule.activity.findViewById(R.id.fab)
+    Screenshot.snap(view).setName("view").record()
+}
+```
+
+## Multiple checks
+
+If we would like to snap many screenshots in one test we should set up a name of every screenshot:
+
+```kotlin
+@Test
+fun test_Activity_and_View_Snapshot() {
+    val activity = activityTestRule.launchActivity(null)
+    val view = activityTestRule.activity.findViewById(R.id.fab)
+    Screenshot.snapActivity(activity).setName("sample_activity_test").record()
+    Screenshot.snap(view).setName("sample_view_test").record()
+}
+```
+
+## Multiple devices
+
+In order to run screenshot tests on multiple devices, we will need to prescribe an extra property into app *build.gradle*:
+
+```groovy
+screenshots {
+
+    multipleDevices true
+
+}
+```
+
+Our screenshots will be saved in the unique directory with a composite name, e.g.:
+
+> API_23_GP_XXHDPI_1080x1920_armeabi-v7a_ru-RU
+
+## Tips of record
+
+The only way to collect screenshots is this *gradle* task:
+
+```bash
+$ record<App Variant>ScreenshotTest
+```
+
+I am sure we don’t want to spend so much time to run all our espresso tests to collect all screenshots. It is not only about laziness, but also about her *(:*
+
+So, let’s divide our tests into a screenshot-test and not a screenshot-test via one «*if*» statement in app *build.gradle*:
+
+```groovy
+android {
+    // ...
+    defaultConfig {
+        if (project.gradle.startParameter.taskNames.toString().contains("record")) {
+            Map<String, String> map = new HashMap<String, String>()
+            map.put("package", "my.com.samplesnapshot.screenshots")
+            setTestInstrumentationRunnerArguments map
+        }
+    // ...
+    }
+}
+```
+
+## Reports
+
+Here we came to [the weakest part](https://github.com/facebook/screenshot-tests-for-android/issues/125) of *Screenshot-Tests-For-Android*. Yes, we can say that at the moment the report about failed tests is uninformative at all and does not show the visual differences with the actual snapshot and the reference one.
+
+In pursuit of beautiful and understandable reports, we can come to one tool named [Shot](https://github.com/Karumi/Shot), which, inheriting *Screenshot-Tests-For-Android*, really «painted over» [this problem](https://github.com/facebook/screenshot-tests-for-android/issues/125). But finding awesome reports, we lose flexibility, because *Shot* can’t work with a lot of devices. Based on all of this, everyone can choose the extremes that will make his weekdays less painful.
+
+## Analysis
+
+In this block I would like to make a small comparison between hero of the article and his elder brother on «antagonistic» platform — [iOS-Snapshot-Test-Case](https://github.com/uber/ios-snapshot-test-case):
+
+| Capability                  | Screenshot Tests For Android | iOS Snapshot Test Case |
+| --------------------------- | ---------------------------- | ---------------------- |
+| Birthday                    | 8 Oct 2015                   | 1 Oct 2013             |
+| Languages                   | Kotlin/Java                  | Swift/Objective-C      |
+| Multiple devices/simulators | +/-                          | +                      |
+| File name options           | +/-                          | +                      |
+| Tolerance of Comparison     | -                            | +                      |
+| Objects of verification     | Views/Activities             | UIViews/CALayers       |
+| Test Runner                 | Custom                       | Custom                 |
+| Reports                     | +/-                          | +/-                    |
+
+## Conclusion
+
+To sum it up, I would say that testing with screenshots on Android is pretty easy and useful. It is mighty speed up our automation testing and reduce sum of test cases.
+
+If you had any questions or clarifications after reading the article about the screenshot testing, I’ll be happy to answer them. And you can find the completed project here:
+
+> [sample_of_android_screenshot_testing_2048](https://github.com/alteral/sample_of_android_screenshot_testing_2048)
+
+So, good luck, have fun and see you later *(:*

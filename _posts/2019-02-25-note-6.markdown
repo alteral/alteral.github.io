@@ -1,6 +1,6 @@
 ---
 title: "MITM can be pretty easy with Mitmproxy and Python"
-date: 2019-03-07
+date: 2019-02-25
 tags:
   - mitm
   - mitmproxy
