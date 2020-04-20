@@ -24,8 +24,8 @@ I’ll show you how to read text from a mobile screen. I know we could do it wit
 
 Yeah, *Unity* is not the most testable platform. *Unity* tests run in the app, the result after (**and no else**) looks like this:
 
-:-------------------------:|:-------------------------:
-![Succeess](/assets/images/note_11_1.png)  |  ![Failure](/assets/images/note_11_2.png)
+:-----------------------------------------:|:-----------------------------------------:
+![Succeess](/assets/images/note_11_1.png)  | ![Failure](/assets/images/note_11_2.png)
 
 ## Fork in the road
 
