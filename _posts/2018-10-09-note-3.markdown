@@ -1,0 +1,100 @@
+---
+title: "XCTest -- bundle identifier is quite enough"
+date: 2018-10-24
+tags:
+  - iOS
+  - XCTest
+  - Xcode
+  - Automation testing
+preview: "/assets/images/note_3.png"
+excerpt: null
+related: true
+toc: true
+toc_label: Contents
+---
+
+{% include magic-under-title.html %}
+
+## Introduction
+
+The one who wrote *XCTests/XCUITests* at least once is perfectly familiar with the approach to writing tests in the development workspace, that is, literally side-by-side with the app’s source code.
+
+This is convenient and doesn’t require censure, but should highlight, that this approach is not the only one. We received this superpower with *Xcode 9.0* — [creating a proxy for an application associated with the specified bundle identifier](https://developer.apple.com/documentation/xctest/xcuiapplication/2879415-init). And if we can run the tested app via bundle identifier, it means that:
+
+- we don’t depend on the app’s source code
+- we can run not only the tested app
+
+That’s right, this feature gave us an opportunity to manage unlimited number of apps on our device (hello [UIAutomator](https://developer.android.com/training/testing/ui-testing/uiautomator-testing) 🤖).
+
+## Launch tested app via bundleId
+
+As I already said, this feature gives us the opportunity to run our tested app via identifier:
+
+- create *xcodeproject* with empty activity
+- add new Target — *«iOS UI Testing Bundle»*
+- create a variable in which we put an instance of our app with bundleId
+- run tests and enjoy, as if it has always been
+
+```swift
+let app = XCUIApplication(bundleIdentifier: "com.my.app")
+
+override func setUp() {
+    super.setUp()
+    app.launch()
+}
+```
+
+## Launch other apps via bundleId
+
+Yes, here I would like to throw in final exclamation that any app installed in the system is open to us. For this we only need to know its bundleId. Below is the pretty repo with a list of default apps and their identifiers:
+
+> [joeblau/apple-bundle-identifiers](https://github.com/joeblau/apple-bundle-identifiers)
+
+## How to check that the expected app was opened?
+
+In some cases, we may need to know which app is currently active. We can do this in such a simple, uncomplicated way:
+
+```swift
+func isOpen(app: XCUIApplication) -> Bool {
+   return (app.windows.count > 0)
+}
+```
+
+## How to interact with system alerts?
+
+With this feature, we can also contact with system pop-ups, because they are also the system app’s UI that called *Springboard*:
+
+```swift
+enum Alert: String {
+    case left, right, ok
+}
+
+func alert(button: Alert) {
+    let buttonIndex = (.right == button) ? 2 : 1
+    let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+    let alertBtn = springboard.buttons.element(boundBy: buttonIndex)
+    if alertBtn.exists { alertBtn.tap() }
+}
+```
+
+## How to find the app’s bundleId?
+
+There are two quite simple ways to crank this venture:
+
+**1.** If your app is from the *App Store*. Here we can make our life a little bit easier with [*jq*](http://brewformulas.org/Jq):
+
+```bash
+$ curl [https://itunes.apple.com/lookup?id=310633997](https://itunes.apple.com/lookup?id=310633997) | jq -r '.results[0].bundleId'
+```
+
+**2.** If your app is installed on the device. Here we can make our life a little bit easier with [*ideviceinstaller*](http://brewformulas.org/Ideviceinstaller):
+
+```bash
+$ ideviceinstaller -l
+```
+
+## Conclusion
+
+I think this superpower opens up many opportunities, but, as say, *«with great power there must also come great responsibility»*.
+
+Good luck and have fun. See you late *(:*
