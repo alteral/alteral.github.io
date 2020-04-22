@@ -1,0 +1,157 @@
+---
+title: "How to restart failed XCTests"
+date: 2018-09-25
+tags:
+  - iOS
+  - XCTest
+  - Xcode
+  - Fastlane
+  - Automation testing
+preview: "/assets/images/note_1.png"
+excerpt: null
+related: true
+toc: true
+toc_label: Contents
+---
+
+{% include magic-under-title.html %}
+
+## Introduction
+
+It is not a secret to anybody, that *UI Tests* are rather unstable thing. And often, in practice, we have to come up with various ways to make them as stable as possible. One such way is to restart the failed tests.
+
+If in [*JUnit*](https://github.com/junit-team/junit5) for such cases we have *RetryTestHelper*, in [*TestNG*](https://github.com/cbeust/testng) — *IretryAnalyzer*, then for testing *iOS* apps in [*XCTest*](https://developer.apple.com/documentation/xctest) we don’t have anything like that out of the box.
+
+After a short *googling*, the first solution we can find — [*setup_fragile_tests_for_rescan*](https://github.com/lyndsey-ferguson/setup_fragile_tests_for_rescan/) — this is the [*Fastlane*](https://github.com/fastlane/fastlane) plugin. *Fastlane* is a gorgeous and elegant tool for automating everything around mobile apps (signings, builds, tests, screenshots, delivery and etc). This plugin is currently deprecated, but in its place came [*new improved version*](https://github.com/lyndsey-ferguson/fastlane-plugin-test_center).
+
+I really like *Fastlane*, but plugins not included in the main edition I believe weakly. Although, this is a ready-made solution, and your choice may well fall on it. If you don’t want additional dependencies and you are ready for little coding, then we will continue. I’ll tell how we can implement the restart of the failed tests with self-written solution, using the same *Fastlane*. Theoretically, the same things we can cook without *Fastlane*, but with it everything will look much more elegant and the process will be really enjoyable.
+
+## Precondition
+
+- Install *Fastlane* to run our tests:
+
+```bash
+$ gem install fastlane
+```
+
+- Install [*Nokogiri*](https://github.com/sparklemotion/nokogiri) to parse results of our tests:
+
+```bash
+$ gem install nokogiri
+```
+
+Before we begin, I’d like to add some more theoretical flavoring. Since *Fastlane* is a kind of *DSL* on *Ruby*, its syntax will be very close to *Ruby* lovers. To configure runnable commands and their parameters, we will use [*Fastfile*](https://docs.fastlane.tools/advanced/Fastfile/).
+
+Near to our *.xcodeproj* we create a hidden *fastlane* folder and a *Fastfile* config, where will keep the entire logic for running the tests:
+
+```bash
+$ mkdir -p .fastlane
+$ touch ./fastlane/Fastfile
+$ open ./fastlane/Fastfile
+```
+
+To run the tests, we should create own *Fastlane* lane and in it call *Fastlane* action named [*scan*](https://docs.fastlane.tools/actions/scan/):
+
+```ruby
+lane :my_first_test_lane do
+ scan(
+   scheme: <YOUR TEST SCHEME NAME>,
+   device: 'iPhone X'
+ )
+end
+```
+
+## Solution
+
+Now, let’s write a *Fastlane* lane, that will restart our tests specified number of times. For this, we need to generate a test report in a format, comfortable for parsing, e.g. *.junit*. After running the tests once and generating a report, we check whether there are any failed tests in the report. If there is, then we loop the tests a predetermined number of times until the successful result:
+
+```ruby
+fastlane_require 'nokogiri'
+
+@scheme = <YOUR TEST SCHEME NAME>
+@test_retries = 2
+
+lane :test do
+ scan(
+   scheme: @scheme,
+   device: 'iPhone X',
+   output_types: 'junit',
+   fail_build: (@test_retries <= 0)
+ )
+ while @test_retries > 0
+  failed_tests = find_failed_tests
+  break if failed_tests.empty?
+  @test_retries -= 1
+  scan(
+    scheme: @scheme,
+    device: 'iPhone X',
+    output_types: 'junit',
+    fail_build: @test_retries.zero?,
+    only_testing: failed_tests
+  )
+ end
+end
+
+def find_failed_tests
+ report = File.open('test_output/report.junit') { |f| Nokogiri::XML(f) }
+ suite_name = report.xpath('testsuites/@name').to_s.split('.')[0]
+ test_cases = report.xpath('//testcase')
+ only_testing = []
+ test_cases.each do |test_case|
+   next if test_case.xpath('failure').empty?
+   test_class = test_case.xpath('@classname').to_s.split('.')[1]
+   test_name = test_case.xpath('@name')
+   only_testing << "#{suite_name}/#{test_class}/#{test_name}"
+ end
+ only_testing.join(',')
+end
+```
+
+Now, to check our restarts, let’s write two tests:
+
+- the first, that will be always green
+
+- and the second, that will be always red
+
+```swift
+func test_NeverFailure() {
+    XCTAssert(true)
+}
+
+func test_NeverSuccess() {
+    XCTAssert(false)
+}
+```
+
+After that just run *Fastlane* using our test runner:
+
+```bash
+$ fastlane test
+```
+
+The only possible drawback of this solution is that in the final fastlane terminal report, we will only see the tests that were run in the last restart:
+
+```bash
++--------------------+---+
+|      Test Results      |
++--------------------+---+
+| Number of tests    | 1 |
+| Number of failures | 1 |
++--------------------+---+
+
++------+--------+-------------+
+|      fastlane summary       |
++------+--------+-------------+
+| Step | Action | Time (in s) |
++------+--------+-------------+
+| 1    | scan   | 36          |
+| 2    | scan   | 28          |
+| 💥   | scan   | 28          |
++------+--------+-------------+
+```
+
+## Conclusion
+
+That's cool, isn't it? - but I should mention, that restarting the tests, though a forced measure, it is far from the best way to maintain stability, since your apps are becoming a target for heisenbugs. The best way - if you're restarting your tests, restart them less often.
+
+And this is the end. Thanks everybody, see you in the next notes *(:*
