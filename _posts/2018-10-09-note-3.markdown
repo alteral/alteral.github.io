@@ -1,6 +1,6 @@
 ---
 title: "XCTest -- bundle identifier is quite enough"
-date: 2018-10-24
+date: 2018-10-09
 tags:
   - iOS
   - XCTest

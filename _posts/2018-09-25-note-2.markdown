@@ -1,0 +1,128 @@
+---
+title: "Android battery keeper"
+date: 2018-09-25
+tags:
+  - Android
+  - adb
+  - battery
+  - Automation testing
+preview: "/assets/images/note_2.png"
+excerpt: null
+related: true
+toc: true
+toc_label: Contents
+---
+
+{% include magic-under-title.html %}
+
+## Introduction
+
+Own test stand with mobile devices is *awesome*. Especially, if there are continuously running tests. Might endlessly looking at fire, water and mobile auto-tests (but it is not exactly).
+
+Unfortunately, everything has a shelf life and this we can’t escape. Someone chooses cloud solutions, trying to run down from this fact. I in turn will consider the opportunity of extending the life of mobile devices from a solution with a stand. Maybe not for long, but still noticeable.
+
+If *iDevices* on average show themselves from the good side in the severe conditions of the perpetual motion machine, then devices on *Android* quickly inflate their tummies like on the image above.
+
+It is easy to guess that devices swell after permanent charging when live on a test stand. Whether there are plastic or metal cases, *USB 2.0* or *Type-C*, a ventilator or air conditioner -- doesn’t matter.
+
+The first thing that comes to mind for saving hard-workers is to unplug them from charge. Yes, we might plug device to *PC* via *Wi-Fi*, but here we run into two problems:
+
+1. Someday the device must be charged. Well, not without it.
+
+2. Wi-Fi isn’t the most stable thing. UI auto-tests already have something to fall down without it.
+
+## Reflections
+
+Developing our first thought, about unplugging devices — that would be great if it is possible to unplug the device, until it itself asked for recharging. *Google* offers us the opportunity to emulate the disconnection of the battery on the device out of the box, via *adb*:
+
+```bash
+$ adb shell dumpsys battery plug
+$ adb shell dumpsys battery unplug
+$ adb shell dumpsys battery
+```
+The main word here is «**to emulate**».
+
+### Good news
+
+- if we request the status of charging, it looks like not available
+
+- the charging icon isn’t lighting up on the device screen
+
+### Bad news
+
+- as such, unplugging isn’t occur
+
+- the device is still charging, despite everything
+
+## Solution
+
+Actually, we can still implement this task, but for this we need *Super User* privileges. I won’t tell how to install *SuperSu* on *Android*, there are quite a lot of discussions and *step-by-step* tutorials about it in free access. The only thing I would add is that there is nothing terrible for testing here. This hack won’t affect on user cases at all. *Android* will be the same as at past, just on the *steroids*. So, let’s start hexing.
+
+We will also perform basic manipulations via *adb*:
+
+```bash
+# unplug
+$ adb shell "su -c 'echo 0 > /sys/class/power_supply/battery/charging_enabled'"
+
+# plug
+$ adb shell "su -c 'echo 1 > /sys/class/power_supply/battery/charging_enabled'"
+```
+
+The path to the file with the status of the battery can vary depending on the device model. I showed the most common value (hit about *95%* on pure *Android* without shells).
+
+## Beautified solution
+
+Now I would like to sculpt from it a small service that will support the (life or level? 🤔) of battery power on our devices, when it will necessary. Rumored that the optimal battery charge for the mobile devices is about *50%*. The answer to the *ultimate question of Life* is somewhere near:
+
+```ruby
+@max_battery_level = 42
+@charging_file = '/sys/class/power_supply/battery/charging_enabled'.freeze
+
+def devices
+  `adb devices`.scan(/\n(.*)\t/).flatten
+end
+
+def unplug(udid:)
+  charging = (`adb -s #{udid} shell "su -c 'cat #{@charging_file}'"`.to_i == 1)
+  puts "🔋 Charging enabled: #{charging}"
+  `adb -s #{udid} shell "su -c 'echo 0 > #{@charging_file}'"`
+  puts "🔌 Unplug #{udid}" if charging
+end
+
+def plug(udid:)
+  charging = (`adb -s #{udid} shell "su -c 'cat #{@charging_file}'"`.to_i == 1)
+  puts "🔋 Charging enabled: #{charging}"
+  `adb -s #{udid} shell "su -c 'echo 1 > #{@charging_file}'"`
+  puts "🔌 Plug #{udid}" unless charging
+end
+
+def battery(udid:)
+  battery_level = /level: (.*?)\n/.match(`adb -s #{udid} shell dumpsys battery`)
+  raise("⚠️ Could not get battery level from: #{udid}") if battery_level[1].nil?
+  puts "💡 Battery level: #{battery_level[1]}"
+  battery_level[1].to_i
+end
+
+def battery_saver
+  devices.each do |udid|
+    next if udid.include?('emulator')
+    puts "📱 #{udid}"
+    battery_level = battery(udid: udid)
+    battery_level > @max_battery_level ? unplug(udid: udid) : plug(udid: udid)
+  end
+end
+
+battery_saver
+```
+
+## Conclusion
+
+The script has written in *Ruby* and claims a good mood. Putting it on our *CI* and running about once an hour, we can greatly reduce the load on the batteries of our test devices. Via it we request all the connected *Android* devices and get the current percentage of the charge. If it is less than *42* — we turn on the charge, if it is greater than *42* — we turn off the charge.
+
+In order not to scare our auto-tests with a disabled screen, you can turn it on before starting them:
+
+```bash
+$ adb shell input keyevent KEYCODE_WAKEUP
+```
+
+I hope that it was interesting. So long, and thanks for all the fish. See you in the following notes *(:*
