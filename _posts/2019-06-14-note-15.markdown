@@ -1,5 +1,5 @@
 ---
-title: "Pull out whole information about any app from AppStore"
+title: "Pull out whole information about any app from App Store"
 date: 2019-06-14
 tags:
   - iOS

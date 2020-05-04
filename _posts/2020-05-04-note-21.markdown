@@ -1,0 +1,168 @@
+---
+title: "iOS apps under the microscope"
+date: 2020-05-04
+tags:
+  - iOS
+  - Reverse engineering
+  - Jailbreak
+  - Pentesting
+preview: "/assets/images/note_21.png"
+excerpt: null
+related: true
+toc: true
+toc_label: Contents
+---
+
+{% include magic-under-title.html %}
+
+I once wrote [a note](/note-10/) about poking around *Android* apps. The other day I realised I still haven't done it for *iOS*. Let's fix the gap *(:*
+
+## Nice to have
+- [*Hopper Disassembler*](https://hopperapp.com) (free version is enough for now)
+- [*class-dump*](https://github.com/alteral/class-dump-binaries) (*binary* selection depends on your app)
+- [*passionfruit*](https://github.com/chaitin/passionfruit) (for those who like *UI*) -- as it's kind of [archived](https://github.com/chaitin/passionfruit/issues/74) I'll update the note right after depreciation of the tool
+- [*objection*](https://github.com/sensepost/objection) (for those who adore *CLI*)
+- [*frida*](https://frida.re) (em, no comments)
+- Jailbroken *iDevice* (whatever, e.g.: [*checkra1n*](https://cydia-app.com/checkrain))
+
+## Here we go
+
+As an example I'll take default *Apple's Calendar* app:
+
+> `com.apple.mobilecal`
+
+## Binary neighbours
+
+At first we should somehow get hold of decrypted app file (*.ipa*). To do so we can [jump over to another branch](/note-8/#using-anyone-ios-executable-dumper) where I explained the process in details.
+
+As soon as we got the decrypded *.ipa* we are able to:
+
+**1.** Imagine *.ipa* as archived folder:
+
+```bash
+$ mv Calendar.ipa Calendar.zip
+```
+
+**2.** Unzip that folder
+
+```bash
+$ unzip Calendar.zip
+```
+
+**3.** Get inside
+
+```bash
+$ cd Payload/MobileCal.app/
+```
+
+Being there we can find binary itself (that names *«MobileCal»* without extension) and figure out what else lives near the binary, e.g.: *.json* and *.plist* files.
+
+## Strings and pseudocode
+
+As soon as we got the binary file we can dive much deeper -- inside the Assembler code via [*Hopper*](https://hopperapp.com):
+
+**1.** Open *Hopper Disassembler* app
+
+**2.** Navigate to *«File ↝ Open...»*
+
+**3.** Chose the app's binary file
+
+**4.** Confirm all default options by tapping on *«OK»* button
+
+**5.** Wait for *Hopper* will analyze binary code
+
+When *Hopper* has done its awesome work we are able to:
+
+- Consider *strings* «representation» of our sample app
+
+![strings](/assets/images/note_21_1.png)
+
+- Look for methods names
+
+![procedures](/assets/images/note_21_2.png)
+
+- Enjoy pseudocode of those methods
+
+![pseudocode](/assets/images/note_21_3.png)
+
+- Or block diagrams
+
+![block diagrams](/assets/images/note_21_4.png)
+
+## Classes, methods and variables
+
+Then we could get a list of the classes from the app in a readable format via [*class-dump*](https://github.com/nygard/class-dump):
+
+**1.** As I mentioned before *binary* selection depends on your app:
+
+- if your app is written in Objective-C, so grap [*ObjC binary*](https://github.com/alteral/class-dump-binaries/blob/master/binaries/class-dump)
+- elsif your app is written in Swift, just grap [*Swift binary*](https://github.com/alteral/class-dump-binaries/blob/master/binaries/class-dump-swift)
+
+**2.** Put the *binary* to `/usr/local/bin/` folder
+
+**3.** Dump the app's binary using *class-dump*
+
+```bash
+$ class-dump-swift Payload/MobileCal.app/MobileCal > dump.txt
+```
+
+**4.** Enjoy classes content by opening *dump.txt* file
+
+## Keychain, local storage, url-schemes and much more
+
+To get this data we could use for example: [*passionfruit*](https://github.com/chaitin/passionfruit) or [*objection*](https://github.com/sensepost/objection). For most day to day actions, these tools are pretty much the same with only one correction:
+
+- *passionfruit* is about *UI*
+- *objection* is about *CLI*
+
+Just take your choice, but I'll do a short intro how to get app's data using both of them:
+
+> **objection**
+
+```bash
+$ objection -g "Calendar" explore
+```
+
+| Command | Description |
+| - | - |
+| ios cookies get | Show app's cookies |
+| ios keychain dump | Show app's keychain |
+| ios nsurlcredentialstorage dump | Show nsurlcredentialstorage data |
+| ios ui dump | Show current app's screen hierarchy |
+| ios bundles list_frameworks | Show app's frameworks list |
+| ios plist cat | Show content of chosen plist file |
+| sqlite connect | Show content of chosen DB file |
+
+> **passionfruit**
+
+**1.** Run *passionfruit* server
+
+```bash
+$ passionfruit
+```
+
+**2.** Open its main web page
+
+```bash
+$ open http://localhost:31337
+```
+
+**3.** Chose your device and the app
+
+**4.** Enjoy handy design with a lot of intuitive features
+
+![passionfruit](/assets/images/note_21_5.png)
+
+## Widescale static analysis
+
+There were many interesting tools, but let's come back to old but cozy [*frida*](https://frida.re) and grep all useful information about the app.
+
+Just run the command and enjoy the output:
+
+```bash
+$ frida -U "Calendar" --codeshare interference-security/ios-app-static-analysis
+```
+
+## Conclusion
+
+Hope it helped on your way, see ya *(:*
