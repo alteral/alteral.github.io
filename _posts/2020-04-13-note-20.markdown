@@ -23,7 +23,6 @@ toc_label: Contents
 - [*usbmuxd*](http://macappstore.org/usbmuxd)
 - Jailbroken *iDevice* connected via *USB* (e.g.: [checkra1n](https://cydia-app.com/checkrain/))
 
-
 ## Installation
 ### Extracting *debugserver* (via *hdiutil*)
 ```bash

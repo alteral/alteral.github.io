@@ -60,7 +60,7 @@ As I said for this method you will need a *Jailbreak*. It can be illegal and pro
 
 **2.** Open *Cydia* app
 
-**3.** Add the source [https://build.frida.re](https://build.frida.re)"
+**3.** Add the source «[https://build.frida.re](https://build.frida.re)»
 
 **4.** Search for *Frida* and install it
 
