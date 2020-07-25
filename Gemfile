@@ -5,6 +5,7 @@ gem "tzinfo-data"
 
 # If you have any plugins, put them here!
 group :jekyll_plugins do
+  gem "activesupport", "6.0.3.2"
   gem "jekyll-paginate"
   gem "jekyll-sitemap", ">= 1.4.0"
   gem "jekyll-gist"
