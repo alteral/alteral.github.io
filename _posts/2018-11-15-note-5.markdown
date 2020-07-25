@@ -27,59 +27,59 @@ We may have noticed the confusing difference between the type of the name of thi
 
 To pick up closer to *Screenshot-Tests-For-Android* project we need to make a few simple motions:
 
-**1.** Install python dependencies:
+1. Install python dependencies:
 
-```bash
-$ pip install mock
-$ pip install Pillow
-```
+    ```bash
+    $ pip install mock
+    $ pip install Pillow
+    ```
 
-**2.** Add permission for write in storage into *AndroidManifest.xml*:
+2. Add permission for write in storage into *AndroidManifest.xml*:
 
-```xml
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-```
+    ```xml
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    ```
 
-**3.** Setup gradle plugin:
+3. Setup gradle plugin:
 
-- in root *build.gradle*
+    - in root *build.gradle*
 
-```groovy
-buildscript {
+    ```groovy
+    buildscript {
 
-   dependencies {
+       dependencies {
 
-      classpath 'com.facebook.testing.screenshot:plugin:0.8.0'
+          classpath 'com.facebook.testing.screenshot:plugin:0.8.0'
 
-   }
+       }
 
-}
-```
-
-- in app *build.gradle*
-
-```groovy
-apply plugin: 'com.facebook.testing.screenshot'
-```
-
-**4.** Create custom *Test Runner*:
-
-```kotlin
-// Set this test runner in your app build.gradle like this:
-// defaultConfig { testInstrumentationRunner "com.my.example.ScreenshotTestRunner" }
-
-class ScreenshotTestRunner: AndroidJUnitRunner() {
-    override fun onCreate(arguments: Bundle) {
-        ScreenshotRunner.onCreate(this, arguments)
-        super.onCreate(arguments)
     }
+    ```
 
-    override fun finish(resultCode: Int, results: Bundle) {
-        ScreenshotRunner.onDestroy()
-        super.finish(resultCode, results)
+    - in app *build.gradle*
+
+    ```groovy
+    apply plugin: 'com.facebook.testing.screenshot'
+    ```
+
+4. Create custom *Test Runner*:
+
+    ```kotlin
+    // Set this test runner in your app build.gradle like this:
+    // defaultConfig { testInstrumentationRunner "com.my.example.ScreenshotTestRunner" }
+
+    class ScreenshotTestRunner: AndroidJUnitRunner() {
+        override fun onCreate(arguments: Bundle) {
+            ScreenshotRunner.onCreate(this, arguments)
+            super.onCreate(arguments)
+        }
+
+        override fun finish(resultCode: Int, results: Bundle) {
+            ScreenshotRunner.onDestroy()
+            super.finish(resultCode, results)
+        }
     }
-}
-```
+    ```
 
 ## Usage
 

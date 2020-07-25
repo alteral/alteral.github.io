@@ -39,23 +39,18 @@ $ brew install mitmproxy
 
 *Mitmproxy* has three interfaces for every taste:
 
-**1.** *Cli*
-
-```bash
+1. *Cli*
+  ```bash
 $ mitmproxy
-```
-
-**2.** *Web* (I personally prefer this one)
-
-```bash
+  ```
+2. *Web* (I personally prefer this one)
+  ```bash
 $ mitmweb
-```
-
-**3.** *Log dump*
-
-```bash
+  ```
+3. *Log dump*
+  ```bash
 $ mitmdump
-```
+  ```
 
 ## Usage
 
@@ -63,15 +58,15 @@ $ mitmdump
 ![Mitm](/assets/images/note_6_2.png)
 {: center}
 
-**1.** Connect to the same *Wi-Fi* on computer and device
+1. Connect to the same *Wi-Fi* on computer and device
 
-**2.** Start *mitmproxy* on computer
+2. Start *mitmproxy* on computer
 
-**3.** Open *Wi-Fi* settings on device and set up proxy with laptop ip and *mitmproxy* port (*8080* by default)
+3. Open *Wi-Fi* settings on device and set up proxy with laptop ip and *mitmproxy* port (*8080* by default)
 
-**4.** Open [mitm.it](http://mitm.it/) on device browser and choose your platform
+4. Open [mitm.it](http://mitm.it/) on device browser and choose your platform
 
-**5.** Then install downloaded certificate and trust it
+5. Then install downloaded certificate and trust it
 
 Now you can sniff your traffic via *mitmproxy*.
 

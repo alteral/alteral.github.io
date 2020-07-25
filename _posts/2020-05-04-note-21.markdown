@@ -37,23 +37,23 @@ At first we should somehow get hold of decrypted app file (*.ipa*). To do so we 
 
 As soon as we got the decrypded *.ipa* we are able to:
 
-**1.** Imagine *.ipa* as archived folder:
+1. Imagine *.ipa* as archived folder:
 
-```bash
-$ mv Calendar.ipa Calendar.zip
-```
+    ```bash
+    $ mv Calendar.ipa Calendar.zip
+    ```
 
-**2.** Unzip that folder
+2. Unzip that folder
 
-```bash
-$ unzip Calendar.zip
-```
+    ```bash
+    $ unzip Calendar.zip
+    ```
 
-**3.** Get inside
+3. Get inside
 
-```bash
-$ cd Payload/MobileCal.app/
-```
+    ```bash
+    $ cd Payload/MobileCal.app/
+    ```
 
 Being there we can find binary itself (that names *«MobileCal»* without extension) and figure out what else lives near the binary, e.g.: *.json* and *.plist* files.
 
@@ -61,15 +61,15 @@ Being there we can find binary itself (that names *«MobileCal»* without extens
 
 As soon as we got the binary file we can dive much deeper -- inside the Assembler code via [*Hopper*](https://hopperapp.com):
 
-**1.** Open *Hopper Disassembler* app
+1. Open *Hopper Disassembler* app
 
-**2.** Navigate to *«File ↝ Open...»*
+2. Navigate to *«File ↝ Open...»*
 
-**3.** Chose the app's binary file
+3. Chose the app's binary file
 
-**4.** Confirm all default options by tapping on *«OK»* button
+4. Confirm all default options by tapping on *«OK»* button
 
-**5.** Wait for *Hopper* will analyze binary code
+5. Wait for *Hopper* will analyze binary code
 
 When *Hopper* has done its awesome work we are able to:
 
@@ -93,20 +93,20 @@ When *Hopper* has done its awesome work we are able to:
 
 Then we could get a list of the classes from the app in a readable format via [*class-dump*](https://github.com/nygard/class-dump):
 
-**1.** As I mentioned before *binary* selection depends on your app:
+1. As I mentioned before *binary* selection depends on your app:
 
-- if your app is written in Objective-C, so grap [*ObjC binary*](https://github.com/alteral/class-dump-binaries/blob/master/binaries/class-dump)
-- elsif your app is written in Swift, just grap [*Swift binary*](https://github.com/alteral/class-dump-binaries/blob/master/binaries/class-dump-swift)
+    - if your app is written in Objective-C, so grab [*ObjC binary*](https://github.com/alteral/class-dump-binaries/blob/master/binaries/class-dump)
+    - elsif your app is written in Swift, just grab [*Swift binary*](https://github.com/alteral/class-dump-binaries/blob/master/binaries/class-dump-swift)
 
-**2.** Put the *binary* to `/usr/local/bin/` folder
+2. Put the *binary* to `/usr/local/bin/` folder
 
-**3.** Dump the app's binary using *class-dump*
+3. Dump the app's binary using *class-dump*
 
-```bash
-$ class-dump-swift Payload/MobileCal.app/MobileCal > dump.txt
-```
+    ```bash
+    $ class-dump-swift Payload/MobileCal.app/MobileCal > dump.txt
+    ```
 
-**4.** Enjoy classes content by opening *dump.txt* file
+4. Enjoy classes content by opening *dump.txt* file
 
 ## Keychain, local storage, url-schemes and much more
 
@@ -135,21 +135,21 @@ $ objection -g "Calendar" explore
 
 > **passionfruit**
 
-**1.** Run *passionfruit* server
+1. Run *passionfruit* server
 
-```bash
-$ passionfruit
-```
+    ```bash
+    $ passionfruit
+    ```
 
-**2.** Open its main web page
+2. Open its main web page
 
-```bash
-$ open http://localhost:31337
-```
+    ```bash
+    $ open http://localhost:31337
+    ```
 
-**3.** Chose your device and the app
+3. Chose your device and the app
 
-**4.** Enjoy handy design with a lot of intuitive features
+4. Enjoy handy design with a lot of intuitive features
 
 ![passionfruit](/assets/images/note_21_5.png)
 

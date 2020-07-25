@@ -38,31 +38,32 @@ So, let’s go with the last one.
 
 ## Fulfilment
 
-*1.* First of all we should take a screenshot:
-- *Android*
+1. First of all we should take a screenshot:
 
-```bash
-$ adb shell /system/bin/screencap -p /sdcard/screenshot.png
-$ adb pull /sdcard/screenshot.png screenshot.png
-```
+    - *Android*
 
-- *iOS*
+    ```bash
+    $ adb shell /system/bin/screencap -p /sdcard/screenshot.png
+    $ adb pull /sdcard/screenshot.png screenshot.png
+    ```
 
-```bash
-$ idevicescreenshot screenshot.png
-```
+    + *iOS*
 
-*2.* Main hero here is a *tesseract* — *cli* for *OCR*
+    ```bash
+    $ idevicescreenshot screenshot.png
+    ```
 
-```bash
-$ brew install tesseract
-```
+2. Main hero here is a *tesseract* — *cli* for *OCR*
 
-*3.* Eventually we will read the text from screenshot and print it in the terminal
+    ```bash
+    $ brew install tesseract
+    ```
 
-```bash
-$ tesseract screenshot.png stdout -l eng
-```
+3. Eventually we will read the text from screenshot and print it in the terminal
+
+    ```bash
+    $ tesseract screenshot.png stdout -l eng
+    ```
 
 ## Bonus
 

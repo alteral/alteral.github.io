@@ -81,17 +81,14 @@ func alert(button: Alert) {
 
 There are two quite simple ways to crank this venture:
 
-**1.** If your app is from the *App Store*. Here we can make our life a little bit easier with [*jq*](http://brewformulas.org/Jq):
-
-```bash
-$ curl [https://itunes.apple.com/lookup?id=310633997](https://itunes.apple.com/lookup?id=310633997) | jq -r '.results[0].bundleId'
-```
-
-**2.** If your app is installed on the device. Here we can make our life a little bit easier with [*ideviceinstaller*](http://brewformulas.org/Ideviceinstaller):
-
-```bash
+1. If your app is from the *App Store*. Here we can make our life a little bit easier with [*jq*](http://brewformulas.org/Jq):
+  ```bash
+$ curl https://itunes.apple.com/lookup?id=310633997 | jq -r '.results[0].bundleId'
+  ```
+2. If your app is installed on the device. Here we can make our life a little bit easier with [*ideviceinstaller*](http://brewformulas.org/Ideviceinstaller):
+  ```bash
 $ ideviceinstaller -l
-```
+  ```
 
 ## Conclusion
 

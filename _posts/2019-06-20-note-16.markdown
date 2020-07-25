@@ -70,16 +70,16 @@ But there is a high probability, that *Google* may reject apps have *network_sec
 Here we are able to build a release *.apk*, duplicate it and make a *network_security_config.xml* injection. So, let’s start:
 1. Build an *.apk*
 2. Clone the repo:
-```bash
+  ```bash
 $ git clone https://github.com/levyitay/AddSecurityExceptionAndroid.git
-```
+  ```
 3. Run a script from the repo:
-```bash
+  ```bash
 $ ./addSecurityExceptions.sh yourApp.apk
-```
-- the script unpacks your *.apk* via *apktool*
-- injects *network_security_config.xml* into *AndroidManifest.xml*
-- signs and repacks your *.apk*
+  ```
+  - the script unpacks your *.apk* via *apktool*
+  - injects *network_security_config.xml* into *AndroidManifest.xml*
+  - signs and repacks your *.apk*
 4. Your app is ready for test, install it and enjoy the sniffing
 
 ## Conclusion

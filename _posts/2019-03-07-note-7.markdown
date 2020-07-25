@@ -40,15 +40,15 @@ As I said, this is not the provenest and the safest method, so use it at your ow
 
 ## Using device on Android
 
-**1.** At first you need to install app from Play Store to your phone
+1. At first you need to install app from Play Store to your phone
 
-**2.** Secondly you should enable «*Unknown sources*» in your phone’s security settings (*Settings => Security => Unknown sources*)
+2. Secondly you should enable «*Unknown sources*» in your phone’s security settings (*Settings => Security => Unknown sources*)
 
-**3.** Then connect your phone to your *PC* using a *USB* cable/*WiFi* (*adb* needs to see it)
+3. Then connect your phone to your *PC* using a *USB* cable/*WiFi* (*adb* needs to see it)
 
-**4.** Make sure you have installed *adb*
+4. Make sure you have installed *adb*
 
-**5.** Download an *.apk*:
+5. Download an *.apk*:
 
 ```bash
 $ bundleId="<your_bundle>"
@@ -61,33 +61,33 @@ $ adb pull $apk app.apk
 
 The best way to make this process automated.
 
-**1.** Install [*google-play-cli*](https://github.com/dweinstein/node-google-play-cli):
+1. Install [*google-play-cli*](https://github.com/dweinstein/node-google-play-cli):
 
-```bash
-$ brew install node
-$ npm i google-play-cli -g
-```
+    ```bash
+    $ brew install node
+    $ npm i google-play-cli -g
+    ```
 
-**2.** Set environment variables in your *bash.profile*:
+2. Set environment variables in your *bash.profile*:
 
-- *GOOGLE_LOGIN* - email address used on a mobile phone.
-- *GOOGLE_PASSWORD* - The password used to access the *Play Service*.
-- *ANDROID_ID* - the device *GSF ID* for *Google*. You can get the *gsf id* e.g., using the [*device id app*](https://play.google.com/store/apps/details?id=com.evozi.deviceid&hl=en).
+    - *GOOGLE_LOGIN* - email address used on a mobile phone.
+    - *GOOGLE_PASSWORD* - The password used to access the *Play Service*.
+    - *ANDROID_ID* - the device *GSF ID* for *Google*. You can get the *gsf id* e.g., using the [*device id app*](https://play.google.com/store/apps/details?id=com.evozi.deviceid&hl=en).
 
-```bash
-$ touch .bash_profile
-$ open .bash_profile
-$ export GOOGLE_LOGIN=sample@gmail.com
-$ export GOOGLE_PASSWORD=password
-$ export ANDROID_ID=a3n3d3r3o3i3d3i3d
-$ source .bash_profile
-```
+    ```bash
+    $ touch .bash_profile
+    $ open .bash_profile
+    $ export GOOGLE_LOGIN=sample@gmail.com
+    $ export GOOGLE_PASSWORD=password
+    $ export ANDROID_ID=a3n3d3r3o3i3d3i3d
+    $ source .bash_profile
+    ```
 
-**3.** Download an *.apk*:
+3. Download an *.apk*:
 
-```bash
-$ gp-download "<your_bundle>" > app.apk
-```
+    ```bash
+    $ gp-download "<your_bundle>" > app.apk
+    ```
 
 ## Conclusion
 Downloading apps from *Google Play Store* can be pretty easy process as manually as automated.

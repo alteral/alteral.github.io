@@ -133,139 +133,138 @@ fun sample() {
 is to create two classes:
 
 1. The first class will match the *RecyclerView*. It will give us an opportunity to parse the RecyclerView and to get:
-- matching view at position;
-- any view at position.
+- matching view at position
+- any view at position
 
-```kotlin
-fun withRecyclerView(recyclerViewId: Int): RecyclerViewMatcher {
-    return RecyclerViewMatcher(recyclerViewId)
-}
-
-class RecyclerViewMatcher(val recyclerViewId: Int) {
-    fun atPosition(position: Int): Matcher<View> {
-        return atPositionOnView(position, -1)
+    ```kotlin
+    fun withRecyclerView(recyclerViewId: Int): RecyclerViewMatcher {
+        return RecyclerViewMatcher(recyclerViewId)
     }
 
-    fun atPositionOnView(position: Int, targetViewId: Int): Matcher<View> {
-        return object : TypeSafeMáatcher<View>() {
-            var resources: Resources? = null
-            var childView: View? = null
-            override fun describeTo(description: Description?) {
-                val id = if (targetViewId == -1) recyclerViewId else targetViewId
-                var idDescription = id.toString()
-                if (resources != null) {
-                    idDescription = try {
-                        resources!!.getResourceName(id)
-                    } catch (var4: NotFoundException) {
-                        String.format("%s (resource name not found)", id)
-                    }
-                }
-                description!!.appendText("with id: $idDescription")
-            }
+    class RecyclerViewMatcher(val recyclerViewId: Int) {
+        fun atPosition(position: Int): Matcher<View> {
+            return atPositionOnView(position, -1)
+        }
 
-            override fun matchesSafely(view: View?): Boolean {
-                resources = view?.resources
-                if (childView == null) {
-                    val recyclerView = view?.rootView?.findViewById(recyclerViewId) as RecyclerView
-                    childView = if (recyclerView != null) {
-                        recyclerView.findViewHolderForAdapterPosition(position)!!.itemView
+        fun atPositionOnView(position: Int, targetViewId: Int): Matcher<View> {
+            return object : TypeSafeMáatcher<View>() {
+                var resources: Resources? = null
+                var childView: View? = null
+                override fun describeTo(description: Description?) {
+                    val id = if (targetViewId == -1) recyclerViewId else targetViewId
+                    var idDescription = id.toString()
+                    if (resources != null) {
+                        idDescription = try {
+                            resources!!.getResourceName(id)
+                        } catch (var4: NotFoundException) {
+                            String.format("%s (resource name not found)", id)
+                        }
+                    }
+                    description!!.appendText("with id: $idDescription")
+                }
+
+                override fun matchesSafely(view: View?): Boolean {
+                    resources = view?.resources
+                    if (childView == null) {
+                        val recyclerView = view?.rootView?.findViewById(recyclerViewId) as RecyclerView
+                        childView = if (recyclerView != null) {
+                            recyclerView.findViewHolderForAdapterPosition(position)!!.itemView
+                        } else {
+                            return false
+                        }
+                    }
+                    return if (targetViewId == -1) {
+                        view === childView
                     } else {
-                        return false
+                        val targetView: View = childView!!.findViewById(targetViewId)
+                        view === targetView
                     }
                 }
-                return if (targetViewId == -1) {
-                    view === childView
-                } else {
-                    val targetView: View = childView!!.findViewById(targetViewId)
-                    view === targetView
+            }
+        }
+    }
+    ```
+2. The second class will handle the *AmbiguousViewMatcherException* and grep a hierarchy of the whole *RecyclerView*. Thanks to it we’ll be able to get:
+- the first matching view
+- the last matching view
+- the count of matching views
+- the possibility to consider all the views inside and outside the screen
+
+    ```kotlin
+    fun recyclerViewCounter(@IdRes recyclerViewId: Int, action: RecyclerViewCounter.() -> Unit) {
+        action(RecyclerViewCounter(recyclerViewId))
+    }
+
+    class RecyclerViewCounter(@IdRes private val recyclerViewId: Int) {
+        fun getView(atPosition: Int): Matcher<View> {
+            return withRecyclerView(recyclerViewId).atPosition(atPosition)
+        }
+
+        fun getCount(expectedView: Matcher<View>): Int {
+            val elementsCount = getCount()
+            var expectedViewsCount = 0
+            repeat(elementsCount) {
+                val result = scanPosition(it, expectedView)
+                if (result) {
+                    expectedViewsCount++
                 }
             }
+            return expectedViewsCount
         }
-    }
-}
-```
 
-2. The second class will handle the *AmbiguousViewMatcherException* and grep a hierarchy of the whole *RecyclerView*. Thanks to it we’ll be able to get:
-- the first matching view;
-- the last matching view;
-- the count of matching views;
-- the possibility to consider all the views inside and outside the screen.
-
-```kotlin
-fun recyclerViewCounter(@IdRes recyclerViewId: Int, action: RecyclerViewCounter.() -> Unit) {
-    action(RecyclerViewCounter(recyclerViewId))
-}
-
-class RecyclerViewCounter(@IdRes private val recyclerViewId: Int) {
-    fun getView(atPosition: Int): Matcher<View> {
-        return withRecyclerView(recyclerViewId).atPosition(atPosition)
-    }
-
-    fun getCount(expectedView: Matcher<View>): Int {
-        val elementsCount = getCount()
-        var expectedViewsCount = 0
-        repeat(elementsCount) {
-            val result = scanPosition(it, expectedView)
-            if (result) {
-                expectedViewsCount++
+        fun getLastMatchingPosition(expectedView: Matcher<View>): Int {
+            val elementsCount = getCount()
+            var lastMatchingPosition = -1
+            repeat(elementsCount) {
+                val result = scanPosition(it, expectedView)
+                if (result) {
+                    lastMatchingPosition = it
+                }
             }
+            return lastMatchingPosition
         }
-        return expectedViewsCount
-    }
 
-    fun getLastMatchingPosition(expectedView: Matcher<View>): Int {
-        val elementsCount = getCount()
-        var lastMatchingPosition = -1
-        repeat(elementsCount) {
-            val result = scanPosition(it, expectedView)
-            if (result) {
-                lastMatchingPosition = it
+        fun getFirstMatchingPosition(expectedView: Matcher<View>): Int? {
+            val elementsCount = getCount()
+            repeat(elementsCount) {
+                val result = scanPosition(it, expectedView)
+                if (result) {
+                    return it
+                }
             }
+            return null
         }
-        return lastMatchingPosition
-    }
 
-    fun getFirstMatchingPosition(expectedView: Matcher<View>): Int? {
-        val elementsCount = getCount()
-        repeat(elementsCount) {
-            val result = scanPosition(it, expectedView)
-            if (result) {
-                return it
+        private fun getCount(): Int {
+            val count = intArrayOf(0)
+            val matcher: Matcher<View> = object : TypeSafeMatcher<View>() {
+                override fun matchesSafely(item: View): Boolean {
+                    count[0] = (item as RecyclerView).adapter!!.itemCount
+                    return true
+                }
+
+                override fun describeTo(description: Description) {
+                  description.appendText("Count of the views inside the RecyclerView")
+                }
             }
+            onView(CoreMatchers.allOf(ViewMatchers.withId(recyclerViewId), ViewMatchers.isDisplayed()))
+                .check(matches(matcher))
+            return count.first()
         }
-        return null
-    }
 
-    private fun getCount(): Int {
-        val count = intArrayOf(0)
-        val matcher: Matcher<View> = object : TypeSafeMatcher<View>() {
-            override fun matchesSafely(item: View): Boolean {
-                count[0] = (item as RecyclerView).adapter!!.itemCount
-                return true
+        private fun scanPosition(position: Int, expectedView: Matcher<View>): Boolean {
+            try {
+                onView(ViewMatchers.withId(recyclerViewId))
+                    .perform(RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(position))
+                onView(withRecyclerView(recyclerViewId).atPosition(position))
+                    .check(matches(hasDescendant(expectedView)))
+            } catch (ignored: AssertionError) {
+                return false
             }
-
-            override fun describeTo(description: Description) {
-              description.appendText("Count of the views inside the RecyclerView")
-            }
+            return true
         }
-        onView(CoreMatchers.allOf(ViewMatchers.withId(recyclerViewId), ViewMatchers.isDisplayed()))
-            .check(matches(matcher))
-        return count.first()
     }
-
-    private fun scanPosition(position: Int, expectedView: Matcher<View>): Boolean {
-        try {
-            onView(ViewMatchers.withId(recyclerViewId))
-                .perform(RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(position))
-            onView(withRecyclerView(recyclerViewId).atPosition(position))
-                .check(matches(hasDescendant(expectedView)))
-        } catch (ignored: AssertionError) {
-            return false
-        }
-        return true
-    }
-}
-```
+    ```
 
 ### Comments
 This way is a bit more complicated, but definitely more flexible and reliable. Also, it «almost» doesn’t contradict the *Espresso* paradigm *(:*

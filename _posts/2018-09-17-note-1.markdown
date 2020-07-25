@@ -7,6 +7,7 @@ tags:
   - Xcode
   - Fastlane
   - Automation testing
+  - Ruby
 preview: "/assets/images/note_1.png"
 excerpt: null
 related: true

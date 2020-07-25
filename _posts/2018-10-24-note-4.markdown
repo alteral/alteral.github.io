@@ -353,52 +353,52 @@ Sometimes we may need to verify the snapshot of the full screen with the excepti
 
 Can anyone draw? And paint?) It is time to paint over, because we can solve this problem with the help of *«colorings»*. I am not kidding 😉. For this we need:
 
-**1.** to extend the *UIImage* once again by creating the* fill(element: XCUIElement)* method, which will paint over the chosen element on the snapshot:
+1. to extend the *UIImage* once again by creating the* fill(element: XCUIElement)* method, which will paint over the chosen element on the snapshot:
 
-```swift
-import UIKit
-import XCTest
+    ```swift
+    import UIKit
+    import XCTest
 
-extension UIImage {
+    extension UIImage {
 
-    func fill(element: XCUIElement) -> UIImage {
-        UIGraphicsBeginImageContext(self.size)
-        self.draw(at: CGPoint.zero)
-        let context = UIGraphicsGetCurrentContext()!
-        context.fill(
-            CGRect(
-                x: Double(element.frame.minX),
-                y: Double(element.frame.minY),
-                width: Double(element.frame.size.width),
-                height: Double(element.frame.size.height)
+        func fill(element: XCUIElement) -> UIImage {
+            UIGraphicsBeginImageContext(self.size)
+            self.draw(at: CGPoint.zero)
+            let context = UIGraphicsGetCurrentContext()!
+            context.fill(
+                CGRect(
+                    x: Double(element.frame.minX),
+                    y: Double(element.frame.minY),
+                    width: Double(element.frame.size.width),
+                    height: Double(element.frame.size.height)
+                )
             )
-        )
-        let myImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return myImage!
+            let myImage = UIGraphicsGetImageFromCurrentImageContext()
+            UIGraphicsEndImageContext()
+            return myImage!
+        }
+
+    }
+    ```
+
+2. to create a new method *verifyScreen(without element: XCUIElement)* near the previously created verification methods:
+
+    ```swift
+    func verifyScreen(without element: XCUIElement) {
+      let paintedImage = XCUIApplication().screenshot().image.fill(element: element).removingStatusBar
+      FBSnapshotVerifyView(UIImageView(image: paintedImage))
     }
 
-}
-```
+    func verifyScreen() {
+      let image = XCUIApplication().screenshot().image.removingStatusBar
+      FBSnapshotVerifyView(UIImageView(image: image))
+    }
 
-**2.** to create a new method *verifyScreen(without element: XCUIElement)* near the previously created verification methods:
-
-```swift
-func verifyScreen(without element: XCUIElement) {
-  let paintedImage = XCUIApplication().screenshot().image.fill(element: element).removingStatusBar
-  FBSnapshotVerifyView(UIImageView(image: paintedImage))
-}
-
-func verifyScreen() {
-  let image = XCUIApplication().screenshot().image.removingStatusBar
-  FBSnapshotVerifyView(UIImageView(image: image))
-}
-
-func verifyElement(_ element: XCUIElement) {
-  let image = element.screenshot().image
-  FBSnapshotVerifyView(UIImageView(image: image))
-}
-```
+    func verifyElement(_ element: XCUIElement) {
+      let image = element.screenshot().image
+      FBSnapshotVerifyView(UIImageView(image: image))
+    }
+    ```
 
 ## Conclusion
 

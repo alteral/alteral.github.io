@@ -6,6 +6,7 @@ tags:
   - adb
   - battery
   - Automation testing
+  - Ruby
 preview: "/assets/images/note_2.png"
 excerpt: null
 related: true

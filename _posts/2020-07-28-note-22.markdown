@@ -1,0 +1,178 @@
+---
+title: "Speed up CI through impact analysis"
+date: 2020-07-28
+tags:
+  - Automation testing
+  - Continuous integration
+  - iOS
+  - Android
+  - Ruby
+  - Github Actions
+preview: "/assets/images/note_22.png"
+excerpt: null
+related: true
+toc: true
+toc_label: Contents
+---
+
+{% include magic-under-title.html %}
+
+## Definition
+
+What does impact analysis actually mean in terms of *CI*? 
+
+- **in brief**:
+
+It's about time-saving thing — we define what was impacted and skip unrelated actions (e.g.: *building* or *testing*). 
+
+- **in practice**: 
+
+We did a change to production code. We do analysis of what was affected. We will make a decision about what should be built and which tests should be executed depending on that analysis.
+
+## Surface impact analysis based on filters and triggers
+
+Here we are using keywords in `TRIGGER` and `IGNORE` environment variables and running our tests that have been pre-filtered via tags/classes. This can be pretty helpful in *monorepo* world.
+
+1. Create a script (`check_changes.rb`) that will be responsible for which files were impacted:
+
+    ```ruby
+    require 'json'
+
+    required_keys = ENV['TRIGGER'].split(',').map { |key| key.strip }
+    ignored_keys = ENV['IGNORE'].nil? ? [] : ENV['IGNORE'].split(',').map { |key| key.strip }
+    response = JSON.parse(`curl -s -H "authorization: Bearer #{ENV['GITHUB_TOKEN']}" -X GET -G #{ENV['PULL_REQUEST']}/files`)
+    impacted_files = response.map { |file| file['filename'] }
+    impacted_files.select! do |path|
+      required_keys.any? do |required_key|
+        should_key_be_considered = ignored_keys.none? { |key| path.include?(key) }
+        should_key_be_considered && path.include?(required_key)
+      end
+    end
+
+    puts impacted_files.size
+    ```
+
+2. Create *CI* pipeline that will be responsible for providing any required info to the script above and will work depending on the output:
+
+    ```yaml
+    name: Sample
+
+    on: [pull_request]
+
+    jobs:
+      first_project:
+        name: FirstProjectTests
+        runs-on: [macos-latest]
+        steps:
+          - uses: actions/checkout@v2
+          - name: Runner
+            env:
+              PULL_REQUEST: ${{ "{{ github.event.pull_request._links.self.href " }}}}
+              GITHUB_TOKEN: ${{ "{{ secrets.GITHUB_TOKEN " }}}}
+              TRIGGER: "FirstProjectRelatedFolder/, VeryImportantFolder/, Fastfile"
+              IGNORE: "FirstProjectFolder/tests/, .md"
+            run: |
+              if [ $(ruby ./.github/scripts/check_changes.rb) = 0 ]; then
+                echo "Required files were not touched"
+              else
+                fastlane first_project_tests
+              fi
+
+      second_project:
+        name: SecondProjectTests
+        runs-on: [macos-latest]
+        steps:
+          - uses: actions/checkout@v2
+          - name: Runner
+            env:
+              PULL_REQUEST: ${{ "{{ github.event.pull_request._links.self.href " }}}}
+              GITHUB_TOKEN: ${{ "{{ secrets.GITHUB_TOKEN " }}}}
+              TRIGGER: "SecondProjectRelatedFolder/, VeryImportantFolder/, Fastfile"
+              IGNORE: "SecondProjectRelatedFolder/tests/, .md"
+            run: |
+              if [ $(ruby ./.github/scripts/check_changes.rb) = 0 ]; then
+                echo "Required files were not touched"
+              else
+                fastlane second_project_tests
+              fi
+    ```
+
+## Deep impact analysis based on code coverage tools
+
+Here we are using code coverage tools to generate an impact map and running our tests that have been matched against the impacted files.
+
+As nothing changed since Paul Hammant has breathtakingly described it, I'll just leave a link here:
+
+[The Rise of Test Impact Analysis](https://martinfowler.com/articles/rise-test-impact-analysis.html)
+{: .notice--info}
+
+And make a quick guide to action:
+
+1. Configure code coverage tool (e.g.: [iOS example](https://developer.apple.com/library/archive/documentation/ToolsLanguages/Conceptual/Xcode_Overview/CheckingCodeCoverage.html))
+
+2. Run each test one by one
+
+    2.1. Collect code-coverage report for each test
+
+    2.2. Extract involved source files from code-coverage report
+
+3. Create a map (`impact_map.json`), where test names are the keys and arrays of source files are the values, for example:
+
+    ```json
+    { 
+      "SampleSuite/SampleClass/testMethod_1": [
+        "path/to/a.swift",
+        "path/to/b.swift",
+        "path/to/c.swift"
+      ],
+      "SampleSuite/SampleClass/testMethod_2": [
+        "path/to/c.swift",
+        "path/to/d.swift",
+        "path/to/e.swift"
+      ]
+    }
+    ```
+
+4. Create a script (`check_changes.rb`) that will be responsible for which tests to run:
+
+    ```ruby
+    require 'json'
+
+    impact_map = JSON.parse(File.read('impact_map.json'))
+    response = JSON.parse(`curl -s -H "authorization: Bearer #{ENV['GITHUB_TOKEN']}" -X GET -G #{ENV['PULL_REQUEST']}/files`)
+    impacted_files = response.map { |file| file['filename'] }
+
+    impact_map.select! do |test, related_source_files|
+      related_source_files.any? { |file| impacted_files.include?(file) }
+    end
+
+    puts impact_map.keys.join(',')
+    ```
+
+5. Create *CI* pipeline that will be responsible for providing any required info to the script above and will run the tests depending on the output:
+
+    ```yaml
+    name: Sample
+
+    on: [pull_request]
+
+    jobs:
+      sample:
+        name: Tests
+        runs-on: [macos-latest]
+        steps:
+          - uses: actions/checkout@v2
+          - name: Runner
+            env:
+              PULL_REQUEST: ${{ "{{ github.event.pull_request._links.self.href " }}}}
+              GITHUB_TOKEN: ${{ "{{ secrets.GITHUB_TOKEN " }}}}
+            run: |
+              essential_tests=$(ruby ./.github/scripts/check_changes.rb)
+              fastlane test only_testing:essential_tests
+    ```
+
+## Conclusion
+
+This was just a superficial analysis/rough idea of how we are able to influence on the speed of *CI* process. Keep it in mind and build your own *pipeline* as fast as you wish!
+
+See ya *(:*

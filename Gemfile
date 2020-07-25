@@ -2,6 +2,7 @@ source "https://rubygems.org"
 
 gem "github-pages", group: :jekyll_plugins
 gem "tzinfo-data"
+gem "activesupport", ">= 6.0.3.2"
 
 # If you have any plugins, put them here!
 group :jekyll_plugins do
@@ -12,5 +13,5 @@ group :jekyll_plugins do
   gem "jemoji"
   gem "jekyll-include-cache"
   gem "jekyll-seo-tag"
-  gem "minimal-mistakes-jekyll"
+  gem "minimal-mistakes-jekyll", "4.19.3"
 end
