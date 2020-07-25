@@ -248,7 +248,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  github-pages (>= 204)
+  github-pages (>= 206)
   jekyll-feed (>= 0.13.0)
   jekyll-gist
   jekyll-include-cache (>= 0.2.0)
@@ -256,7 +256,7 @@ DEPENDENCIES
   jekyll-seo-tag (>= 2.6.1)
   jekyll-sitemap (>= 1.4.0)
   jemoji (>= 0.11.1)
-  minimal-mistakes-jekyll (>= 4.19.1)
+  minimal-mistakes-jekyll (>= 4.19.3)
   tzinfo-data
 
 BUNDLED WITH
