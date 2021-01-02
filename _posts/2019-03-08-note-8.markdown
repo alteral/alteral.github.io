@@ -4,8 +4,7 @@ date: 2019-03-08
 tags:
   - iOS
   - App Store
-  - ipa
-  - Pentesting
+  - Bug bounty
 preview: "/assets/images/note_8.png"
 excerpt: null
 related: true

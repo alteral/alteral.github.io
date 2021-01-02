@@ -19,13 +19,13 @@ toc_label: Contents
 
 ## Definition
 
-What does impact analysis actually mean in terms of *CI*? 
+What does impact analysis actually mean in terms of *CI*?
 
 - **in brief**:
 
-It's about time-saving thing — we define what was impacted and skip unrelated actions (e.g.: *building* or *testing*). 
+It's about time-saving thing — we define what was impacted and skip unrelated actions (e.g.: *building* or *testing*).
 
-- **in practice**: 
+- **in practice**:
 
 We did a change to production code. We do analysis of what was affected. We will make a decision about what should be built and which tests should be executed depending on that analysis.
 
@@ -119,7 +119,7 @@ And make a quick guide to action:
 3. Create a map (`impact_map.json`), where test names are the keys and arrays of source files are the values, for example:
 
     ```json
-    { 
+    {
       "SampleSuite/SampleClass/testMethod_1": [
         "path/to/a.swift",
         "path/to/b.swift",

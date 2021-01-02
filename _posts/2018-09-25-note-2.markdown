@@ -3,8 +3,6 @@ title: "Android battery keeper"
 date: 2018-09-25
 tags:
   - Android
-  - adb
-  - battery
   - Automation testing
   - Ruby
 preview: "/assets/images/note_2.png"

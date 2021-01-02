@@ -3,8 +3,8 @@ title: "Android apps under the microscope"
 date: 2019-04-06
 tags:
   - Android
-  - Pentesting
   - Reverse engineering
+  - Bug bounty
 preview: "/assets/images/note_10.png"
 excerpt: null
 related: true

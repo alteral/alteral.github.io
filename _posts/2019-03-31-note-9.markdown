@@ -4,7 +4,6 @@ date: 2019-03-31
 tags:
   - iOS
   - Xcode
-  - ipa
   - Automation testing
 preview: "/assets/images/note_9.gif"
 excerpt: null

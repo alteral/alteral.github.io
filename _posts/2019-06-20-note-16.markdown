@@ -5,7 +5,7 @@ tags:
   - Android
   - Proxy
   - Sniffing
-  - Pentesting
+  - Bug bounty
 preview: "/assets/images/note_16.png"
 excerpt: null
 related: true

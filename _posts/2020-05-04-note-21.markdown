@@ -5,7 +5,7 @@ tags:
   - iOS
   - Reverse engineering
   - Jailbreak
-  - Pentesting
+  - Bug bounty
 preview: "/assets/images/note_21.png"
 excerpt: null
 related: true

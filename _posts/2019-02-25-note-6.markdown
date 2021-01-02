@@ -5,9 +5,9 @@ tags:
   - mitm
   - mitmproxy
   - Sniffing
-  - Pentesting
   - iOS
   - Android
+  - Bug bounty
 preview: "/assets/images/note_6.png"
 excerpt: null
 related: true

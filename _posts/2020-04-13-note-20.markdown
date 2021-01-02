@@ -3,11 +3,10 @@ title: "Debugging third party iOS apps with lldb"
 date: 2020-04-13
 tags:
   - iOS
-  - lldb
   - Debug
   - Jailbreak
-  - Pentesting
   - Reverse engineering
+  - Bug bounty
 preview: "/assets/images/note_20.png"
 excerpt: null
 related: true

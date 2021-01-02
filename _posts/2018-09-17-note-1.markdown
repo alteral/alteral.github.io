@@ -27,7 +27,7 @@ After a short *googling*, the first solution we can find — [*setup_fragile_tes
 
 I really like *Fastlane*, but this plugin was a bit buggy to me. I mean, if it's working great for you, just go on using it. Otherwise - welcome to the party.
 
-I, in turn, came up with an idea to create my own [*Fastlane* plugin](https://github.com/alteral/fastlane-plugin-try_scan), that will just do its job without lots of features - retry tests if they fail. 
+I, in turn, came up with an idea to create my own [*Fastlane* plugin](https://github.com/alteral/fastlane-plugin-try_scan), that will just do its job without lots of features - retry tests if they fail.
 
 ![mem](/assets/images/note_1_1.png)
 

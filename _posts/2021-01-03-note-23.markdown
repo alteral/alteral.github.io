@@ -1,0 +1,149 @@
+---
+title: "Finding leaks, exposing secrets"
+date: 2021-01-03
+tags:
+  - Git
+  - Secrets
+  - Leaks
+  - Bug bounty
+  - Continuous integration
+preview: "/assets/images/note_23.png"
+excerpt: null
+related: true
+toc: true
+toc_label: Contents
+---
+
+{% include magic-under-title.html %}
+
+## Introduction
+
+So, right off the bat, - leaks are one of the most dangerous types of vulnerabilities for the companies, one of the yummiest things for the hackers, and one of the most well-paid targets for the bug hunters.
+
+This note is full of referrals on multiple great third party researches, docs, articles, and whatnot, so sorry in advance.
+
+## Preparation
+
+Would be great to first of all pick up as many target values as possible. By target values I mean: *domains, subdomains, keywords, key-values, etc*. Everything here depends on your savvy and imagination. At least I would propose to get:
+
+1. The domains *in scope* (and, of course, *out of scope*, as we aren't gonna break the things, just looking for some leaks that can possibly have an influence on the domains *in scope*) from *[HackerOne](https://hackerone.com/)* and/or *[BugCrowd](https://bugcrowd.com/)* (e.g.: *[Twitter](https://hackerone.com/twitter)*);
+2. The data under the hood of *iOS* and *Android* apps (tbh, this is already a good place to start keeping an eye on the leaks: *tokens, secrets, passwords, etc*). I won't go into details here, for more info you can simply jump on my previous notes about it (*[iOS](/note-21/)*, *[Android](/note-10/)*);
+3. The name of an organization on *GitHub* and the nicknames of its members for further analysis (e.g.: *[Twitter](https://github.com/orgs/twitter/people)*).
+
+## Baby steps
+
+I won't dwell on this point for long, but still, it shouldn't be written off as it's a really powerful tool. Here I'm talking about *[GitHub search](https://docs.github.com/en/free-pro-team@latest/github/searching-for-information-on-github/about-searching-on-github)*. Using it in the right way can allow us to find a lot of interesting *shtuff*.
+
+Btw, there is a lot of content across the web about *GitHub dorks*, but I'll refer to the one specific pretty good [research](https://securitytrails.com/blog/github-dorks) on this.
+
+## Scan the project
+
+The most popular tool for this purpose is *[gitleaks](https://github.com/zricethezav/gitleaks)*. But I prefer to go with *[earlybird](https://github.com/americanexpress/earlybird)* due to it's a bit more functional and customizable. So here we go:
+
+1. Install the tool:
+
+    ```shell
+    git clone https://github.com/americanexpress/earlybird
+    cd earlybird/ && ./build.sh && ./install.sh
+    ```
+
+2. Scan each repo of the target project (keep in mind that there is a bunch of arguments that can fit your needs):
+
+    ```shell
+    go-earlybird --git-project=twitter \
+                --display-severity=high \
+                --display-confidence=high \
+                --show-full-line \
+                --skip-comments
+    ```
+
+3. Scan any user's repo (e.g.: any repo of the target organization members):
+
+    ```shell
+    go-earlybird --git=https://github.com/alteral/fastlane-plugin-try_scan \
+                --display-severity=low \
+                --display-confidence=low \
+                --show-full-line
+    ```
+
+4. Pay attention to any suspicious data in the output.
+
+Going a little off-topic, you could also set up such tools for your own project for instance as *CI checks* on *PRs*, to make the world a bit more secure. It's a good thing to think about.
+
+## Scan the whole hub
+
+I would take a breath and develop something special by myself for this step, but I won't ehh? There is a lovely tool for such things called *[git-hound](https://github.com/tillson/git-hound)*. Let's do something like this:
+
+1. Install the tool:
+
+    ```shell
+    git clone https://github.com/tillson/git-hound
+    cd git-hound/
+    go build
+    cp git-hound /usr/local/bin
+    ```
+
+2. Fill the target list with the domains, subdomains, and/or any other suspicious queries, for instance:
+
+    ```shell
+    touch target.txt
+    printf "corp.company.com
+    test.company.ie
+    stage.company.ru" > target.txt
+    ```
+
+3. Search for leaks (keep in mind that there are plenty of arguments that can fit your needs):
+
+    ```shell
+    git-hound --subdomain-file target.txt \
+              --dig-files \
+              --dig-commits \
+              --many-results \
+              --no-gists
+    ```
+
+4. Dive deep into the interesting links from the output.
+
+## Scan the feck everything
+
+This is almost rocket science, but let's give it a try. There is one tool I'd like to share with you that's just blowing my mind. And its name is *[shhgit](https://github.com/eth0izzle/shhgit)*. Just open the [live version](https://shhgit.com/) of it and you'll get me.
+
+Here are some steps for those daredevils who'd like to deploy it on their own side:
+
+1. Clone the repo:
+
+    ```shell
+    git clone https://github.com/eth0izzle/shhgit.git
+    ```
+
+2. Edit the *config.yaml* file (i.e. adding your *GitHub tokens* and removing the signatures you are not interested in):
+
+    ```shell
+    cd shhgit && open config.yaml
+    ```
+
+3. Install and run the tool:
+
+    - if you require a web interface then you'll have to go with *Dockerfile*:
+
+    ```shell
+    docker-compose build
+    docker-compose up
+    open http://localhost:8080/
+    ```
+
+    - elsif *CLI* is pretty enough for you then just execute:
+
+    ```shell
+    go build
+    cp shhgit /usr/local/bin
+    shhgit
+    ```
+
+4. Enjoy.
+
+## Conclusion
+
+I hope it was a fun journey and there were at least some useful tips and tricks. If so, don't stop on the *git* related leaks, try to think about *CI logs* and things like that. There is terrific [research](https://edoverflow.com/2019/ci-knew-there-would-be-bugs-here/) about it and I couldn't write it up better.
+
+Happy hacking and tremendous swag *(:*

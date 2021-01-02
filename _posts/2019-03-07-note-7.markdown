@@ -4,8 +4,7 @@ date: 2019-03-07
 tags:
   - Android
   - Play Store
-  - apk
-  - Pentesting
+  - Bug bounty
 preview: "/assets/images/note_7.png"
 excerpt: null
 related: true
