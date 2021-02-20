@@ -19,9 +19,9 @@ toc_label: Contents
 
 ## Introduction
 
-First of all I would like to link [wiki](https://en.wikipedia.org/wiki/Man-in-the-middle_attack) *MITM* definition. If you are interested in my simple explanation, *MITM* is a hacker attack, in which there is a client, a server and that man from the title in the middle. Man in the middle changes the original connection of the user and receives full access to his traffic with ability to add or remove any stuff in requests and responses.
+First of all, I would like to link [wiki](https://en.wikipedia.org/wiki/Man-in-the-middle_attack) *MITM* definition. If you are interested in my simple explanation, *MITM* is a hacker attack, in which there is a client, a server, and that man from the title in the middle. Man in the middle changes the original connection of the user and receives full access to his traffic with the ability to add or remove any stuff in requests and responses.
 
-*[Mitmproxy](https://mitmproxy.org/)* — is your swiss-army knife for debugging, testing, privacy measurements and penetration testing. This is about *HTTP* and *HTPPS* requests and touch on not only mobile (*iOS/Android*), but also *OSX*, *Windows* and *Linux* apps. Especially nice that it is *FREE*.
+*[Mitmproxy](https://mitmproxy.org/)* — is your swiss-army knife for debugging, testing, privacy measurements, and penetration testing. This is about *HTTP* and *HTPPS* requests and touches on not only mobile (*iOS/Android*), but also *OSX*, *Windows*, and *Linux* apps. Especially nice that it is *FREE*.
 
 In this note, I will not go through the advantages of *mitmproxy* over other similar tools (*Charles, scat!*), but believe me, there are more than disadvantages.
 
@@ -35,7 +35,7 @@ In this note, I will not go through the advantages of *mitmproxy* over other sim
 $ brew install mitmproxy
 ```
 
-## Broad variety of UI
+## A broad variety of UI
 
 *Mitmproxy* has three interfaces for every taste:
 
@@ -62,11 +62,11 @@ $ mitmdump
 
 2. Start *mitmproxy* on computer
 
-3. Open *Wi-Fi* settings on device and set up proxy with laptop ip and *mitmproxy* port (*8080* by default)
+3. Open *Wi-Fi* settings on the device and set up a proxy with laptop IP and *mitmproxy* port (*8080* by default)
 
 4. Open [mitm.it](http://mitm.it/) on device browser and choose your platform
 
-5. Then install downloaded certificate and trust it
+5. Then install the downloaded certificate and trust it
 
 Now you can sniff your traffic via *mitmproxy*.
 
@@ -92,20 +92,20 @@ A [useful option](https://docs.mitmproxy.org/stable/howto-ignoredomains/) when w
 ![Unable to verify app error](/assets/images/note_6_5.png)
 {: center}
 
-So, let's ignore these hosts. In order to do it we should set up little *regex* at startup of *mitmproxy*:
+So, let's ignore these hosts. In order to do it we should set up a little *regex* at the startup of *mitmproxy*:
 
 ```bash
 $ mitmweb --ignore-hosts '^(?:(?!android.clients.google.com|appldnld.apple.com|mesu.apple.com|ppq.apple.com).)*$'
 ```
 
-## What have the Python?
+## What Python brings?
 
-We got to the most powerful feature => *python* injection *(:*
+*Python* is the game-changer and the killer feature at the same time.
 
-The main things we should create:
-- import *mitmproxy* lib to start
-- method request, if we want to modify our requests and/or create new responses
-- method response, if we want to modify server responses
+The main things to consider for the quick start are:
+
+- method `request`, if we want to modify our requests and/or create new responses
+- method `response`, if we want to modify server responses
 
 ```python
 from mitmproxy import http
@@ -117,9 +117,9 @@ def response(flow: http.HTTPFlow) -> None:
    print("here will be response modification via flow.response and its params")
 ```
 
-Exactly in these two methods that we can control **whole traffic**.
+We're lucky guys 'cause using these two methods we can control the **whole traffic**.
 
-**Attention!** The following examples are really useful, but don't claim to be exhaustive, but only describe some of the possibilities of interaction with the [*mitmproxy API*](https://mitmproxy.readthedocs.io/en/v2.0.2/scripting/api.html). Something heavier, and generally anything you want you can find in the [official examples](https://github.com/mitmproxy/mitmproxy/tree/master/examples).
+**Attention!** The following examples are really useful but don't claim to be exhaustive, but only describe some of the possibilities of interaction with the [*mitmproxy API*](https://mitmproxy.readthedocs.io/en/v2.0.2/scripting/api.html). Something heavier, and generally anything you want you can find in the [official examples](https://github.com/mitmproxy/mitmproxy/tree/master/examples).
 
 - kill requests (e.g.: kill *iOS* requests for update):
 
@@ -154,6 +154,16 @@ from mitmproxy import http
 
 def response(flow: http.HTTPFlow) -> None:
   flow.response.status_code = 503
+```
+
+- emulate slow connection:
+
+```python
+from mitmproxy import http
+import time
+
+def response(flow: http.HTTPFlow) -> None:
+  time.sleep(5.0)
 ```
 
 - redirect requests:

@@ -8,4 +8,4 @@ author_profile: false
 
 Psst, I have some breathtaking notes with a focus on Mobile about automation testing, CI/CD, and security things for future me.
 
-Although it’s worth confessing they probably might be both useful and time-saving, so feel free to grab any also for your needs *(:*
+They might be quite useful and time-saving, so feel free to grab any also for your needs *(:*

@@ -1,5 +1,5 @@
 ---
-title: "Configure secure web proxy on macOS via cli"
+title: "Configure secure web proxy on macOS via command line"
 date: 2019-06-25
 tags:
   - macOS

@@ -18,9 +18,9 @@ toc_label: Contents
 
 ## Introduction
 
-So, right off the bat, - leaks are one of the most dangerous types of vulnerabilities for the companies, one of the yummiest things for the hackers, and one of the most well-paid targets for the bug hunters.
+So, right off the bat, - leaks are one of the most dangerous types of vulnerabilities for companies, one of the yummiest things for hackers, and one of the most well-paid targets for bug hunters.
 
-This note is full of referrals on multiple great third party researches, docs, articles, and whatnot, so sorry in advance.
+This note is full of referrals on multiple great third-party researches, docs, articles, and whatnot, so sorry in advance.
 
 ## Preparation
 

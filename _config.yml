@@ -10,7 +10,7 @@ locale                   : "en-IE"
 title                    : "@alteral"
 title_separator          : "-"
 name                     : "Alexey Alter-Pesotskiy"
-description              : "📱 Mobile testing is a delicate matter"
+description              : "📱 Mobile automation is a delicate matter"
 url                      : "https://alteral.github.io"
 baseurl                  : # the subpath of your site, e.g. "/blog"
 repository               : "alteral/alteral.github.io"
@@ -54,7 +54,7 @@ analytics:
 author:
   name             : "Alexey Alter-Pesotskiy"
   avatar           : "/assets/images/profile.png"
-  bio              : "SDET at Zendesk"
+  bio              : "Mobile Engineer at Zendesk"
   location         : "Dublin, Ireland"
   email            :
   uri              :

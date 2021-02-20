@@ -1,0 +1,135 @@
+---
+title: "How to execute curl, git, and any other CLI tools anonymously and mock the location"
+date: 2021-02-20
+tags:
+  - Tor
+  - Git
+  - Curl
+  - Proxy
+  - Security
+preview: "/assets/images/note_24.png"
+excerpt: null
+related: true
+toc: true
+toc_label: Contents
+---
+
+{% include magic-under-title.html %}
+
+## Introduction
+
+Today I'll briefly explain how to provide the [*Tor*](https://www.torproject.org) anonymity guarantee to almost any scripts and *CLI* tools that you have in your pocket.
+
+The most complicated question would be: «For what?», and, to be honest, I can't come up with a strong answer. Maybe you are a hacker, or you just enjoy being hidden and safe, or you simply need to test your app from Madagascar, who knows?
+
+## Installation
+
+```shell
+brew install tor
+brew install torsocks
+```
+
+## Usage
+
+- Start proxy server:
+
+```shell
+tor
+```
+
+- Figure out your current *IP* address and location:
+
+```shell
+ip2cc $(curl -s ifconfig.me)
+```
+
+- Proxy it through *Tor* and check it out one more time:
+
+```shell
+ip2cc $(curl -s --socks5 127.0.0.1:9050 ifconfig.me)
+```
+
+Looks like it has changed, right? It was a quick win. Worth mentioning that by default *Tor* takes an *IP* address randomly, but we can specify the exact country using [*Tor country codes*](https://web.archive.org/web/20180328074444/http://www.b3rn3d.com/blog/2014/03/05/tor-country-codes/). Let's open a connection, for instance, from Canada and close it from New Zealand.
+
+- Stop pre-created proxy server:
+
+```shell
+killall tor
+```
+
+- Create `torrc` file:
+
+```shell
+touch torrc
+```
+
+- Put *entry* and *exit* nodes in `torrc` file (`ca` and `nz` as we decided above):
+
+```shell
+echo "EntryNodes {ca}
+ExitNodes {nz}" > torrc
+```
+
+- Start proxy server providing the configured `torrc` file:
+
+```shell
+tor -f torrc
+```
+
+- Check your location out:
+
+```shell
+ip2cc $(curl -s --socks5 127.0.0.1:9050 ifconfig.me)
+```
+
+## Github
+
+- So, now you'd like to clone *github* repo anonymously. Why do you need that? Ok, never mind, let's just do it:
+
+```shell
+curl -sOL --socks5 127.0.0.1:9050 https://github.com/{username}/{reponame}/archive/{branch}.zip
+```
+
+- Wait, you even think about working on that repo anonymously? I didn't go that far, but I have something for ya:
+
+[https://stackoverflow.com/a/37100346](https://stackoverflow.com/a/37100346)
+{: .notice--info}
+
+
+## The show must go on
+
+- It worth noticing that some *CLI* tools provide an argument to get a proxy server path (e.g.: [*youtube.dl*](https://ytdl-org.github.io/youtube-dl/index.html)) and this way you can strain all their traffic through *Tor*:
+
+```shell
+youtube-dl "youtube.com/watch?v={id}" --proxy socks5://127.0.0.1:9050
+```
+
+- To be honest, there is a much easier way to cover all that stuff, it's where [*torsocks*](https://gitweb.torproject.org/torsocks.git) comes. For example:
+
+```shell
+torify curl -s ifconfig.me
+```
+
+*Torify* simply wraps all the traffic that any provided tool will request and thoroughly proxies it through itself. Let's take a look at it from a different example, imagine that for the sake of fun or for any other reasons you need to anonymously install some groundbreaking *ruby gem*.
+
+- Here we go:
+
+```shell
+torify gem install bundler
+```
+
+- You'd say: «Now you're talking», but there is always *BUT*. Sometimes you may face an error like:
+
+```text
+ERROR: /usr/bin/{toolname} is located in a directory protected by Apple's System Integrity Protection.
+```
+
+- If so, just copy-pasta that binary to your local execution folder (but it's possibly no more a workaround for *macOS Big Sur* users):
+
+```shell
+cp /usr/bin/{toolname} /usr/local/bin
+```
+
+## Conclusion
+
+Fun fact: now you know how to wear a mask on your tools and scripts 😷

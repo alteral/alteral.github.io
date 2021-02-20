@@ -15,6 +15,9 @@ toc_label: Contents
 
 {% include magic-under-title.html %}
 
+All below is worth to read, but if you request my humble opinion today on which exactly tool to use, I'd suggest going with [pointfreeco](https://github.com/pointfreeco/swift-snapshot-testing).
+{: .notice--info}
+
 ## Introduction
 
 «It’s not a bug, it’s a feature». Almost every member of the team has already learned this phrase. And yes, curiously enough, it can be said about some amount of defects. But not about badly displayed layout. This is especially important for mobile testing, given the time-cost of delivery to the store.

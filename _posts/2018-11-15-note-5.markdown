@@ -15,6 +15,9 @@ toc_label: Contents
 
 {% include magic-under-title.html %}
 
+All below is worth to read, but if you request my humble opinion today on which exactly tool to use, I'd suggest going with [paparazzi](https://github.com/cashapp/paparazzi).
+{: .notice--info}
+
 ## Introduction
 
 At last time I talked about [snapshot testing on iOS](/note-4/). Now I would like to turn to the second, no less popular mobile platform, — *Android*. Here we are very limited in the choice of tools for the snapshot verifying using native frameworks.
