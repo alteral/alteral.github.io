@@ -1,0 +1,88 @@
+---
+title: "How to re-run only failed jobs on Github Actions"
+date: 2021-04-18
+tags:
+  - Github Actions
+  - Continuous integration
+  - Automation testing
+preview: "/assets/images/note_25.png"
+excerpt: null
+related: true
+toc: true
+toc_label: Contents
+---
+
+{% include magic-under-title.html %}
+
+## Introduction
+
+Have you ever come across a *Github Actions* workflow that ~~stumbled into level ground~~ failed without good reason? If so I believe you're well familiar with this ruthless button:
+
+![Re-run jobs](/assets/images/note_25_1.png)
+
+Yeah, the thing is that it restarts absolutely all the jobs (*<span style="color:lime">green</span>*, *<span style="color:red">red</span>*, *<span style="color:grey">whatever</span>*), even if just the only one has failed. You can imagine how annoying this can be. While *Github Actions* doesn't provide a way to re-run just the failed jobs out of the box, let's build something on our own.
+
+## Implementation
+
+### Step-by-step guide
+
+1. Set up a step to get the current timestamp
+
+    ```yml
+    - id: timestamp
+      run: echo "::set-output name=timestamp::$(timestamp +%s)"
+    ```
+
+2. Name a cache container using the above timestamp
+
+    ```yml
+    - uses: actions/cache@v2
+      with:
+        path: |
+          run_result
+        key: ${{ "{{ github.run_id " }}}}-${{ "{{ github.job " }}}}-${{ "{{ steps.timestamp.outputs.timestamp " }}}}
+        restore-keys: |
+          ${{ "{{ github.run_id " }}}}-${{ "{{ github.job " }}}}-
+    ```
+
+3. Restore the previous result
+
+    ```yml
+    - id: run_result
+      run: cat run_result 2>/dev/null || echo 'default'
+    ```
+
+4. Set up a condition for further steps
+
+    ```yml
+    - uses: actions/checkout@v2
+      if: steps.run_result.outputs.run_result != 'success'
+    ```
+
+5. Save the result on success
+
+    ```yml
+    - run: echo "::set-output name=run_result::success" > run_result
+    ```
+
+### Sample
+
+- [Project](https://github.com/alteral/re-run-only-failed-jobs-on-github-actions)
+- [Action](https://github.com/alteral/re-run-only-failed-jobs-on-github-actions/actions/runs/760987512)
+- [Workflow](https://github.com/alteral/re-run-only-failed-jobs-on-github-actions/actions/runs/760987512/workflow)
+
+## Pros
+
+- CI time will be noticeably reduced
+- Developers nerves will be safely rescued
+- This approach is 100% configurable and can be implemented only for the chosen jobs and steps
+
+## Cons
+
+- The only drawback I could come up with is that the logs of the successful jobs will be cleared on re-run
+
+## Conclusion
+
+The idea was to make our *Github Actions* more flexible and compromisable to speed up the development cycle, avoid time-consuming obstacles and increase fault tolerance.
+
+Although this pattern is controversial enough, but on the other hand, you are now fully equipped to give your failed jobs a second chance *(:*
