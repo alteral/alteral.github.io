@@ -10,11 +10,11 @@ locale                   : "en-IE"
 title                    : "@alteral"
 title_separator          : "-"
 name                     : "Alexey Alter-Pesotskiy"
-description              : "📱 Mobile automation is a delicate matter"
+description              : "Mobile Infrastructure is a delicate matter"
 url                      : "https://alteral.github.io"
 baseurl                  : # the subpath of your site, e.g. "/blog"
 repository               : "alteral/alteral.github.io"
-teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
+teaser                   : "/assets/images/note_21.png"
 remote_theme             : mmistakes/minimal-mistakes
 minimal_mistakes_skin    : dark
 breadcrumbs              : false # true, false (default)
@@ -54,7 +54,7 @@ analytics:
 author:
   name             : "Alexey Alter-Pesotskiy"
   avatar           : "/assets/images/profile.png"
-  bio              : "Mobile Engineer at Zendesk"
+  bio              : "Mobile Infrastructure SRE"
   location         : "Dublin, Ireland"
   email            :
   uri              :
